@@ -1,0 +1,37 @@
+# govagent governance ruleset.
+# Inspired by public API guidelines (Zalando RESTful API Guidelines, adidas API Guidelines,
+# RFC 9457). Fix class, breaking-ness and write scopes live in rules_meta.yaml.
+formats: [oas3]
+
+aliases:
+  Operation:
+    - "$.paths[*][get,put,post,delete,options,head,patch,trace]"
+
+rules:
+  gov-info-contact:
+    description: API must declare a contact email in info.contact.email.
+    message: "{{description}}"
+    severity: warn
+    given: $.info
+    then:
+      field: contact.email
+      function: truthy
+
+  gov-servers-https:
+    description: Server URLs must use https://.
+    message: "Server URL must use https:// (found: {{value}})."
+    severity: error
+    given: $.servers[*].url
+    then:
+      function: pattern
+      functionOptions:
+        match: "^https://"
+
+  gov-operation-summary:
+    description: Every operation must have a summary.
+    message: "{{description}}"
+    severity: warn
+    given: "#Operation"
+    then:
+      field: summary
+      function: truthy

@@ -1,0 +1,32 @@
+# Deterministic metadata per rule (docs/SPEC.md §3, §5). Keys must match governance.spectral.yaml.
+#   fix_class:          auto | needs_human_input (no LLM call for the latter)
+#   breaking:           true if the fix changes the API contract; never auto-approved
+#   scope:              JSON pointer ("/info") or template resolved per violation ("operation")
+#   extra_write_scopes: additional pointers the fix may write to
+#   guidance:           short fixing guidance injected in the prompt
+rules:
+  gov-info-contact:
+    fix_class: needs_human_input
+    breaking: false
+    scope: /info
+    extra_write_scopes: []
+    guidance: >-
+      The contact email is business information that cannot be inferred from the spec.
+
+  gov-servers-https:
+    fix_class: auto
+    breaking: false
+    scope: /servers
+    extra_write_scopes: []
+    guidance: >-
+      Replace the http:// scheme with https:// and keep host, port, path and server
+      variables unchanged.
+
+  gov-operation-summary:
+    fix_class: auto
+    breaking: false
+    scope: operation
+    extra_write_scopes: []
+    guidance: >-
+      Add a short summary (max ~8 words, imperative, no trailing period) derived from the
+      operation's method, path, description and responses.

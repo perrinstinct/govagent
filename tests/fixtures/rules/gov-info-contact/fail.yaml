@@ -1,0 +1,7 @@
+openapi: 3.0.3
+info:
+  title: Pets
+  version: 1.0.0
+  contact:
+    name: API team
+paths: {}

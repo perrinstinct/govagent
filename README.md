@@ -24,3 +24,7 @@ uv run pytest -m integration   # needs Spectral on PATH
 docker build -t govagent .
 docker run --rm govagent spectral --version
 ```
+
+## License
+
+[MIT](LICENSE)

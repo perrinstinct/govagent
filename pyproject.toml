@@ -3,6 +3,8 @@ name = "govagent"
 version = "0.1.0"
 description = "Agent that enforces API design governance on OpenAPI specs: deterministic lint, verified JSON Patch fixes, reviewable PRs."
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "pydantic>=2.13.5",

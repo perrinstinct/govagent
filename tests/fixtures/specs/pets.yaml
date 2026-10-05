@@ -1,0 +1,37 @@
+# Pet store API used by the M1 walking skeleton.
+openapi: 3.0.3
+info:
+  title: Pet Store
+  version: 1.2.0
+  contact:
+    email: api-team@example.com # team mailbox
+servers:
+  - url: https://api.example.com/v1
+paths:
+  /pets:
+    get:
+      summary: List pets
+      operationId: listPets
+      responses:
+        "200":
+          description: A page of pets.
+    post:
+      operationId: createPet
+      description: Registers a new pet in the store and returns it with its generated id.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewPet"
+      responses:
+        "201":
+          description: The created pet.
+components:
+  schemas:
+    NewPet:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string # display name, not unique

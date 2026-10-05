@@ -19,7 +19,7 @@ from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 
 from govagent.config import Settings
-from govagent.domain.errors import ConfigError, LinterError, PatchError, ScopeError
+from govagent.domain.errors import ConfigError, LinterError, LLMError, PatchError, ScopeError
 
 RULE_ID = "gov-operation-summary"
 
@@ -234,6 +234,10 @@ def bedrock_proposer(settings: Settings) -> Proposer:
     if not settings.model_id or not settings.aws_region:
         raise ConfigError("GOVAGENT_MODEL_ID and GOVAGENT_AWS_REGION must be set to call Bedrock")
 
+    from botocore.exceptions import (  # pyright: ignore[reportMissingTypeStubs]
+        BotoCoreError,
+        ClientError,
+    )
     from langchain_aws import ChatBedrockConverse
 
     llm = ChatBedrockConverse(
@@ -246,7 +250,10 @@ def bedrock_proposer(settings: Settings) -> Proposer:
 
     def propose(system: str, user: str) -> Proposal:
         messages = [("system", system), ("human", user)]
-        response = cast(dict[str, Any], structured.invoke(messages))
+        try:
+            response = cast(dict[str, Any], structured.invoke(messages))
+        except (ClientError, BotoCoreError) as exc:
+            raise LLMError(f"Bedrock call failed: {exc}") from exc
         if response["parsing_error"] is not None:
             raise PatchError(f"model output did not match the schema: {response['parsing_error']}")
         usage = cast(dict[str, int], response["raw"].usage_metadata or {})

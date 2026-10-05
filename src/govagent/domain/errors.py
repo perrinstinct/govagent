@@ -19,3 +19,7 @@ class PatchError(GovagentError):
 
 class ScopeError(GovagentError):
     """A patch operation writes outside the allowed scopes."""
+
+
+class LLMError(GovagentError):
+    """The model provider refused or failed the call (access, throttling, network...)."""

@@ -1,5 +1,5 @@
-from govagent.core.verification import verify
-from govagent.domain.models import Severity, Violation
+from govagent.core.verification import follow_moves, verify
+from govagent.domain.models import PatchOp, Severity, Violation
 
 
 def v(rule_id: str, pointer: str, severity: Severity = Severity.WARN) -> Violation:
@@ -47,3 +47,27 @@ def test_preexisting_violations_are_not_counted_as_introduced() -> None:
     result = verify([TARGET, OTHER], [OTHER], {TARGET.fingerprint})
 
     assert OTHER not in result.introduced
+
+
+def test_moved_preexisting_violation_is_not_counted_as_introduced() -> None:
+    rename = PatchOp.model_validate(
+        {"op": "move", "from": "/paths/~1petStore", "path": "/paths/~1pet-store"}
+    )
+    kebab = v("kebab", "/paths/~1petStore", Severity.ERROR)
+    summary_before = v("summary", "/paths/~1petStore/get")
+    summary_after = v("summary", "/paths/~1pet-store/get")
+
+    result = verify([kebab, summary_before], [summary_after], {kebab.fingerprint}, [rename])
+
+    assert result.resolved
+    assert result.introduced == []
+
+
+def test_follow_moves_applies_moves_in_order_and_only_under_the_source() -> None:
+    ops = [
+        PatchOp.model_validate({"op": "move", "from": "/a/x", "path": "/a/y"}),
+        PatchOp.model_validate({"op": "move", "from": "/a/y", "path": "/b/z"}),
+    ]
+    moved = follow_moves([v("r", "/a/x/deep"), v("r", "/a/xx"), v("r", "/c")], ops)
+
+    assert [m.pointer for m in moved] == ["/b/z/deep", "/a/xx", "/c"]

@@ -21,6 +21,7 @@ from openapi_spec_validator.validation.exceptions import (
     OpenAPIValidationError,
     ValidatorDetectError,
 )
+from referencing.exceptions import Unresolvable  # raised by openapi-spec-validator on bad $ref
 from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap
 from ruamel.yaml.error import YAMLError
@@ -107,6 +108,8 @@ def validate_spec(root: Any) -> None:
         raise InvalidSpecError(
             f"invalid OpenAPI document at {exc.json_path}: {exc.message}"
         ) from exc
+    except Unresolvable as exc:
+        raise InvalidSpecError(f"invalid OpenAPI document: unresolvable $ref: {exc}") from exc
     except ValidatorDetectError as exc:
         raise InvalidSpecError(f"invalid OpenAPI document: {exc}") from exc
 

@@ -92,3 +92,25 @@ class AnalysisReport(BaseModel, frozen=True):
     final_violations: list[Violation]  # after applying all RESOLVED proposals
     usage: Usage
     duration_ms: int
+
+
+class LLMFixOutput(BaseModel, frozen=True):
+    """Structured output requested from the model for one fix attempt."""
+
+    ops: list[PatchOp] = Field(
+        description="JSON Patch operations (add, remove, replace, move), in application order. "
+        "Pointers are absolute from the document root."
+    )
+    rationale: str = Field(description="1-3 sentences explaining the fix, for the PR body.")
+    needs_human_input: bool = Field(
+        description="True when the fix requires business knowledge; ops must then be empty."
+    )
+
+
+class FixRequest(BaseModel, frozen=True):
+    """One call to the fix model. Prompts are rendered by the agent (agent/prompts.py)."""
+
+    group_id: str
+    attempt: int
+    system_prompt: str
+    user_prompt: str

@@ -75,5 +75,5 @@ Spectral locally: `npm i -g @stoplight/spectral-cli` (pin the version used in th
 - Spectral exits non-zero when it finds violations: parse stdout JSON, don't treat the exit code as a crash. Real failures are empty or invalid stdout.
 - Spectral returns paths as segment arrays → convert to RFC 6901 JSON pointers (escape `~` → `~0`, `/` → `~1`).
 - MVP supports single-file specs only (no external `$ref`). Reject multi-file specs with a clear error.
-- Violation fingerprints (`rule_id:pointer`) can shift after array removals or key moves. Acceptable for the MVP; documented in SPEC §4.
+- Violation fingerprints (`rule_id:pointer`) can shift after array insertions/removals (key moves are replayed by `core/verification.follow_moves`). Acceptable for the MVP; documented in SPEC §4.
 - ruamel cannot preserve explicit `null` / `~`: they are written back as empty values (`key:`). Everything else in an unmodified YAML spec round-trips byte-identical.

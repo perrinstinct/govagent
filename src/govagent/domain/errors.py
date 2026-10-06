@@ -1,5 +1,7 @@
 """Project exceptions. Callers catch `GovagentError`; nothing is swallowed silently."""
 
+from govagent.domain.models import Usage
+
 
 class GovagentError(Exception):
     """Base class for every error raised by govagent."""
@@ -39,3 +41,11 @@ class UnsupportedSpecError(GovagentError):
 
 class GroupingError(GovagentError):
     """A violation cannot be mapped to a fix scope (ruleset / rules_meta mismatch)."""
+
+
+class ModelOutputError(GovagentError):
+    """The model answered, but not in the expected schema. The call was still paid for."""
+
+    def __init__(self, message: str, usage: Usage) -> None:
+        super().__init__(message)
+        self.usage = usage

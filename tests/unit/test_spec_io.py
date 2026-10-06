@@ -103,6 +103,13 @@ def test_invalid_documents_are_rejected(text: str) -> None:
         load_spec(text)
 
 
+def test_dangling_internal_ref_is_an_invalid_spec() -> None:
+    text = COMMENTED.replace('"#/components/schemas/Pet"', '"#/components/schemas/Animal"', 1)
+
+    with pytest.raises(InvalidSpecError, match="unresolvable"):
+        load_spec(text)
+
+
 def test_validation_can_be_skipped() -> None:
     spec = load_spec("openapi: 3.0.3\ninfo: {title: t}\npaths: {}\n", validate_openapi=False)
 

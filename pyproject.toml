@@ -58,7 +58,7 @@ venv = ".venv"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = ["-ra", "--strict-markers", "-m", "not integration and not bedrock"]
+addopts = ["-ra", "--strict-markers"]  # default selection: see tests/conftest.py
 markers = [
     "integration: needs the Spectral CLI on PATH",
     "bedrock: makes real Amazon Bedrock calls (run only when asked)",

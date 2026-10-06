@@ -107,9 +107,11 @@ Ports (`domain/ports.py`, `typing.Protocol`):
 - **verification.py**: given before/after violation sets and the group's target fingerprints:
   - `resolved` = all targets gone AND no new `error`/`warn` introduced;
   - `introduced` = after − before (by fingerprint).
-  - Known limitation: fingerprints can shift after array removals or key moves; documented, acceptable for MVP.
+  - Pre-existing violations under a `move` source are relocated before comparing, so a rename does not look like it introduced them. Known limitation: fingerprints can still shift after array insertions/removals; documented, acceptable for MVP.
 
-Fixes are applied **sequentially** on a working copy: each resolved proposal becomes the base for the next group. The report keeps proposals in application order.
+Fixes are applied **sequentially** on a working copy: each resolved proposal becomes the base for the next group. Because a fix can move pointers (a path rename moves every operation under it), the group queue is recomputed from the re-lint after each resolved fix; groups that already have an outcome are skipped. The report keeps proposals in application order.
+
+Beyond re-linting, a fix is rejected if the patched document is no longer valid OpenAPI (including unresolvable `$ref`s) or if it creates `required` entries that name missing properties (`core/integrity.py`): neither is visible to the ruleset.
 
 ## 5. Ruleset (`rulesets/`)
 `governance.spectral.yaml`: Spectral rules. `rules_meta.yaml`: `RuleMeta` per rule. Content inspired by public guidelines only.
@@ -147,7 +149,7 @@ lint ──► group ──► next_group ─┬─(queue empty)─────�
 - **propose**: LLM call with structured output `LLMFixOutput { ops: list[PatchOp], rationale: str, needs_human_input: bool }`. Input: rule id + guidance, violations (pointer + message), scope pointer, allowed write scopes, rendered fragment, and on retry the feedback (violations still present / introduced, or patch/scope error).
 - **guard**: scope check → `REJECTED_SCOPE` counts as a failed attempt with feedback.
 - **apply_verify**: apply on a copy, re-lint the whole spec, verify (§4).
-- **budgets** (config): `max_attempts_per_group=3`, `max_llm_calls_per_run=40`, `max_cost_usd_per_run=0.50`. When exceeded, remaining groups get `BUDGET_EXCEEDED`.
+- **budgets** (config): `max_attempts_per_group=3`, `max_llm_calls_per_run=40`, `max_cost_usd_per_run=0.50`. Checked before every model call (the cost of a call is only known afterwards, so the last call can overshoot the cost cap by at most one call). When exceeded, remaining auto groups get `BUDGET_EXCEEDED`; `needs_human_input` groups are still reported as such.
 - **cost**: tokens × prices from config (`GOVAGENT_PRICE_INPUT_PER_MTOK`, `..._OUTPUT_...`), to be filled in from the AWS pricing page for the chosen model.
 
 Prompt rules (system prompt, `prompts.py`): minimal change; only `add/remove/replace/move`; JSON pointers from document root; never touch outside allowed scopes; preserve semantics; when a fix requires business knowledge, return `needs_human_input=true` with no ops; when renaming, update every reference inside scope (`required`, examples, `$ref`s).

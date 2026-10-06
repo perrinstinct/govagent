@@ -12,7 +12,7 @@ Full spec: `docs/SPEC.md`. Read the relevant section before starting a milestone
 1. **The LLM never detects violations — it only fixes them.** Detection and verification are done by Spectral + our ruleset. Every fix is verified by re-linting.
 2. **The LLM never rewrites the whole spec.** It returns JSON Patch ops (`add`, `remove`, `replace`, `move` only) scoped to allowed pointers. Out-of-scope ops are rejected deterministically before application.
 3. **Fix class and breaking-ness are deterministic** (rule metadata in `rulesets/rules_meta.yaml`). The LLM may downgrade a fix to `needs_human_input`, never upgrade it. Breaking fixes are never auto-approved.
-4. **YAML formatting and comments must survive.** Always load/dump with `ruamel.yaml` round-trip mode. Never `yaml.safe_load` / `json.dumps` a spec we write back.
+4. **YAML formatting and comments must survive.** Always load/dump with `ruamel.yaml` round-trip mode. Never `yaml.safe_load` / `json.dumps` a YAML spec we write back. JSON specs (no comments) are the one exception: `core/spec_io.py` writes them back with `json.dumps` and the detected indentation.
 5. **Human approval lives outside the agent graph.** The graph ends at the report; PR creation is a separate deterministic step taking approved fix IDs.
 6. **Budgets are enforced in code**: max attempts per group, max LLM calls per run, max cost per run.
 
@@ -76,3 +76,4 @@ Spectral locally: `npm i -g @stoplight/spectral-cli` (pin the version used in th
 - Spectral returns paths as segment arrays → convert to RFC 6901 JSON pointers (escape `~` → `~0`, `/` → `~1`).
 - MVP supports single-file specs only (no external `$ref`). Reject multi-file specs with a clear error.
 - Violation fingerprints (`rule_id:pointer`) can shift after array removals or key moves. Acceptable for the MVP; documented in SPEC §4.
+- ruamel cannot preserve explicit `null` / `~`: they are written back as empty values (`key:`). Everything else in an unmodified YAML spec round-trips byte-identical.

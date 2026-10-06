@@ -99,7 +99,7 @@ Ports (`domain/ports.py`, `typing.Protocol`):
 - `GitHost.get_file(repo, path, ref) -> (text, sha)` · `create_branch` · `update_file` · `open_pr -> url`
 
 ## 4. Deterministic core (`src/govagent/core/`)
-- **spec_io.py**: ruamel round-trip load/dump; `resolve(doc, pointer)`; reject external `$ref`; validate with `openapi-spec-validator`.
+- **spec_io.py**: ruamel round-trip load/dump; `resolve(doc, pointer)`; reject external `$ref`; validate with `openapi-spec-validator`. Indentation is detected from the source so an unmodified YAML spec dumps byte-identical (known limitation: explicit `null` / `~` become empty values). JSON specs are written back with `json.dumps` and the detected indentation.
 - **fragments.py**: `render_fragment(doc, pointer, max_depth=4, max_chars=8000)`. Renders the subtree as YAML, collapsing deeper nodes to `{…}` / `[…]`. For `paths` scope, renders keys only.
 - **patching.py**: in-house applier for `add/remove/replace/move` directly on ruamel nodes, so comments and ordering are preserved. Raises `PatchError` on invalid paths. No `copy`/`test`.
 - **scope_guard.py**: an op is allowed only if `path` (and `from` for move) starts with the group's `scope_pointer` or one of the rule's `extra_write_scopes`.

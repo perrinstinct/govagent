@@ -1,0 +1,106 @@
+# Pet Store API: round-trip fixture.
+# Comments, quotes, block scalars, flow style and anchors must survive load + dump.
+openapi: "3.0.3"  # quoted on purpose
+info:
+  title: Pet Store
+  version: 1.4.0
+  description: |
+    Manage the pets of the store.
+
+    Multi-paragraph literal block.
+  contact:
+    email: api-team@example.com # shared team mailbox
+  x-audience: 'external'
+servers:
+  - url: https://api.example.com/v1 # production
+    description: Production
+
+  # Staging is reset every night.
+  - url: https://staging.example.com/v1
+    description: Staging
+security:
+  - apiKey: []
+tags: [{name: pets}, {name: store}]
+paths:
+  # Collection
+  /pets:
+    get:
+      tags: [pets]
+      summary: List pets
+      description: >-
+        Returns a page of pets, ordered by
+        creation date.
+      operationId: listPets
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        '200':
+          description: A page of pets.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Pet"
+        "400":
+          $ref: "#/components/responses/Problem"
+  /pets/{petId}:
+    get:
+      tags: [pets]
+      summary: Get a pet
+      description: Returns one pet.
+      operationId: getPet
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: The pet.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pet"
+        "404":
+          $ref: "#/components/responses/Problem"
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      schema: &pageSize
+        type: integer
+        minimum: 1
+        maximum: 100
+  responses:
+    Problem:
+      description: The request failed (RFC 9457).
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+  schemas:
+    Pet:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string # display name, not unique
+        age:
+          type: integer
+          x-page-size: *pageSize
+    Problem:
+      type: object
+      properties:
+        type: {type: string}
+        title: {type: string}
+        status: {type: integer}

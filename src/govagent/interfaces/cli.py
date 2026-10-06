@@ -36,12 +36,14 @@ def fix(
         typer.echo("Only `--skeleton` is implemented so far (M1).", err=True)
         raise typer.Exit(2)
 
+    from govagent.adapters.spectral import SpectralLinter
     from govagent.interfaces import skeleton as walking_skeleton
 
     settings = Settings()
     try:
         propose = walking_skeleton.bedrock_proposer(settings)
-        result = walking_skeleton.run(spec.read_text(), settings, propose)
+        linter = SpectralLinter(settings.spectral_bin, settings.ruleset_path)
+        result = walking_skeleton.run(spec.read_text(), settings, linter, propose)
     except GovagentError as exc:
         typer.echo(f"error: {exc}", err=True)
         raise typer.Exit(1) from exc

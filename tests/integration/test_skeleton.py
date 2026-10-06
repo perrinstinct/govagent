@@ -2,15 +2,18 @@
 
 import pytest
 
+from govagent.adapters.spectral import SpectralLinter
 from govagent.config import Settings
 from govagent.domain.errors import ScopeError
-from govagent.interfaces.skeleton import LLMFixOutput, PatchOp, Proposal, Proposer, run
+from govagent.domain.models import PatchOp
+from govagent.interfaces.skeleton import LLMFixOutput, Proposal, Proposer, run
 from tests.conftest import REPO_ROOT
 
 pytestmark = pytest.mark.integration
 
 SPEC_TEXT = (REPO_ROOT / "tests" / "fixtures" / "specs" / "pets.yaml").read_text()
 TARGET = "/paths/~1pets/post"
+LINTER = SpectralLinter("spectral", REPO_ROOT / "rulesets" / "governance.spectral.yaml")
 
 
 @pytest.fixture
@@ -37,7 +40,7 @@ def test_resolves_violation_and_preserves_comments(settings: Settings) -> None:
         PatchOp(op="add", path=f"{TARGET}/summary", value="Create a pet"), prompts=prompts
     )
 
-    result = run(SPEC_TEXT, settings, propose)
+    result = run(SPEC_TEXT, settings, LINTER, propose)
 
     assert result.target == f"gov-operation-summary:{TARGET}"
     assert result.resolved
@@ -53,7 +56,7 @@ def test_resolves_violation_and_preserves_comments(settings: Settings) -> None:
 def test_wrong_fix_is_not_resolved(settings: Settings) -> None:
     propose = scripted(PatchOp(op="add", path=f"{TARGET}/x-note", value="hello"))
 
-    result = run(SPEC_TEXT, settings, propose)
+    result = run(SPEC_TEXT, settings, LINTER, propose)
 
     assert not result.resolved
 
@@ -65,14 +68,14 @@ def test_out_of_scope_op_is_rejected_before_any_change(settings: Settings) -> No
     )
 
     with pytest.raises(ScopeError, match="/servers/0/url"):
-        run(SPEC_TEXT, settings, propose)
+        run(SPEC_TEXT, settings, LINTER, propose)
 
 
 def test_clean_spec_needs_no_call(settings: Settings) -> None:
     calls: list[str] = []
     clean = SPEC_TEXT.replace("    post:\n", "    post:\n      summary: Create a pet\n")
 
-    result = run(clean, settings, scripted(prompts=calls))
+    result = run(clean, settings, LINTER, scripted(prompts=calls))
 
     assert result.target is None
     assert calls == []

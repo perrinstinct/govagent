@@ -16,18 +16,13 @@ def test_version() -> None:
     assert result.stdout.strip() == "0.1.0"
 
 
-def test_fix_requires_skeleton_flag_for_now() -> None:
-    result = runner.invoke(app, ["fix", str(SPEC)])
-
-    assert result.exit_code == 2
-
-
 def test_fix_refuses_to_run_without_model_config(
     clean_env: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     clean_env.chdir(tmp_path)  # no .env file here
 
-    result = runner.invoke(app, ["fix", str(SPEC), "--skeleton"])
+    result = runner.invoke(app, ["fix", str(SPEC)])
 
     assert result.exit_code == 1
     assert "GOVAGENT_MODEL_ID" in result.stderr
+    assert "GOVAGENT_PRICE_INPUT_PER_MTOK" in result.stderr

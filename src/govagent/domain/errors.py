@@ -23,3 +23,19 @@ class ScopeError(GovagentError):
 
 class LLMError(GovagentError):
     """The model provider refused or failed the call (access, throttling, network...)."""
+
+
+class PointerError(GovagentError):
+    """A JSON pointer is malformed or does not resolve in the document."""
+
+
+class InvalidSpecError(GovagentError):
+    """The input is not a parseable, valid OpenAPI 3.0/3.1 document."""
+
+
+class UnsupportedSpecError(GovagentError):
+    """The spec uses a feature outside the MVP (e.g. external `$ref`, multi-file specs)."""
+
+
+class GroupingError(GovagentError):
+    """A violation cannot be mapped to a fix scope (ruleset / rules_meta mismatch)."""

@@ -27,6 +27,25 @@ rules:
       functionOptions:
         match: "^https://"
 
+  gov-operation-id:
+    description: Every operation must have an operationId.
+    message: "{{description}}"
+    severity: error
+    given: "#Operation"
+    then:
+      field: operationId
+      function: truthy
+
+  gov-operation-id-camel:
+    description: operationId must be camelCase.
+    message: "operationId must be camelCase (found: {{value}})."
+    severity: warn
+    given: "#Operation.operationId"
+    then:
+      function: pattern
+      functionOptions:
+        match: "^[a-z][a-zA-Z0-9]*$"
+
   gov-operation-summary:
     description: Every operation must have a summary.
     message: "{{description}}"
@@ -35,3 +54,114 @@ rules:
     then:
       field: summary
       function: truthy
+
+  gov-operation-description:
+    description: Every operation must have a description.
+    message: "{{description}}"
+    severity: warn
+    given: "#Operation"
+    then:
+      field: description
+      function: truthy
+
+  gov-operation-tags:
+    description: Every operation must have at least one tag.
+    message: "{{description}}"
+    severity: warn
+    given: "#Operation"
+    then:
+      field: tags
+      function: schema
+      functionOptions:
+        schema:
+          type: array
+          minItems: 1
+
+  gov-path-kebab:
+    description: Static path segments must be kebab-case (lowercase words separated by hyphens).
+    message: "Path must use kebab-case static segments (found: {{property}})."
+    severity: error
+    given: $.paths
+    then:
+      field: "@key"
+      function: pattern
+      functionOptions:
+        match: "^(/([a-z0-9]+(-[a-z0-9]+)*|\\{[^/{}]+\\}))*/?$"
+
+  gov-path-no-trailing-slash:
+    description: Paths must not end with a slash.
+    message: "Path must not end with a slash (found: {{property}})."
+    severity: error
+    given: $.paths
+    then:
+      field: "@key"
+      function: pattern
+      functionOptions:
+        notMatch: ".+/$"
+
+  gov-error-response:
+    description: Every operation must define at least one 4xx response.
+    message: "{{description}}"
+    severity: warn
+    given: "#Operation.responses"
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          type: object
+          not:
+            propertyNames:
+              not:
+                pattern: "^4([0-9]{2}|XX)$"
+
+  gov-problem-json:
+    description: 4xx and 5xx responses must use application/problem+json (RFC 9457).
+    message: "{{description}}"
+    severity: warn
+    given: "#Operation.responses[?(@property.match(/^[45]/))]"
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          type: object
+          required: [content]
+          properties:
+            content:
+              type: object
+              required: [application/problem+json]
+
+  gov-property-camel:
+    description: Schema property names must be camelCase.
+    message: "Property name must be camelCase (found: {{property}})."
+    severity: warn
+    resolved: false
+    given: $..properties
+    then:
+      field: "@key"
+      function: pattern
+      functionOptions:
+        match: "^[a-z][a-zA-Z0-9]*$"
+
+  gov-security-defined:
+    description: Security must be declared globally or on every operation.
+    message: "{{description}}"
+    severity: error
+    given: $
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          anyOf:
+            - required: [security]
+            - properties:
+                paths:
+                  additionalProperties:
+                    properties:
+                      get: {required: [security]}
+                      put: {required: [security]}
+                      post: {required: [security]}
+                      delete: {required: [security]}
+                      options: {required: [security]}
+                      head: {required: [security]}
+                      patch: {required: [security]}
+                      trace: {required: [security]}

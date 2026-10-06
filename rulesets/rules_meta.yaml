@@ -1,7 +1,9 @@
 # Deterministic metadata per rule (docs/SPEC.md §3, §5). Keys must match governance.spectral.yaml.
 #   fix_class:          auto | needs_human_input (no LLM call for the latter)
 #   breaking:           true if the fix changes the API contract; never auto-approved
-#   scope:              JSON pointer ("/info") or template resolved per violation ("operation")
+#   scope:              JSON pointer ("/info", "/" = root) or template resolved per violation:
+#                       "operation" (/paths/<path>/<method>, or the shared component holding the
+#                       violation) | "schema" (the schema owning the offending property)
 #   extra_write_scopes: additional pointers the fix may write to
 #   guidance:           short fixing guidance injected in the prompt
 rules:
@@ -22,6 +24,24 @@ rules:
       Replace the http:// scheme with https:// and keep host, port, path and server
       variables unchanged.
 
+  gov-operation-id:
+    fix_class: auto
+    breaking: false
+    scope: operation
+    extra_write_scopes: []
+    guidance: >-
+      Add a camelCase operationId made of a verb and a resource (e.g. listPets, getPet,
+      createPet) derived from the method and path. It must be unique in the document.
+
+  gov-operation-id-camel:
+    fix_class: auto
+    breaking: true
+    scope: operation
+    extra_write_scopes: []
+    guidance: >-
+      Replace the operationId with its camelCase equivalent, keeping the same words
+      (list_pets -> listPets, Get-Pet -> getPet). Do not otherwise rename it.
+
   gov-operation-summary:
     fix_class: auto
     breaking: false
@@ -30,3 +50,75 @@ rules:
     guidance: >-
       Add a short summary (max ~8 words, imperative, no trailing period) derived from the
       operation's method, path, description and responses.
+
+  gov-operation-description:
+    fix_class: needs_human_input
+    breaking: false
+    scope: operation
+    extra_write_scopes: []
+    guidance: >-
+      A meaningful description requires business knowledge about the operation.
+
+  gov-operation-tags:
+    fix_class: auto
+    breaking: false
+    scope: operation
+    extra_write_scopes: [/tags]
+    guidance: >-
+      Add one tag naming the resource (usually the first static path segment). Reuse an
+      existing tag from the root `tags` list when one fits; otherwise also add it there.
+
+  gov-path-kebab:
+    fix_class: auto
+    breaking: true
+    scope: /paths
+    extra_write_scopes: []
+    guidance: >-
+      Rename the path key with `move`, converting static segments to kebab-case
+      (petOwners -> pet-owners). Keep path parameters such as {petId} unchanged.
+
+  gov-path-no-trailing-slash:
+    fix_class: auto
+    breaking: true
+    scope: /paths
+    extra_write_scopes: []
+    guidance: >-
+      Rename the path key with `move`, removing the trailing slash. If the path without the
+      slash already exists, return needs_human_input instead.
+
+  gov-error-response:
+    fix_class: auto
+    breaking: false
+    scope: operation
+    extra_write_scopes: [/components/schemas, /components/responses]
+    guidance: >-
+      Add the most relevant 4xx response for this operation (400 for operations with input,
+      404 for single-resource lookups). Prefer a $ref to an existing problem response in
+      components; otherwise create one using application/problem+json (RFC 9457).
+
+  gov-problem-json:
+    fix_class: auto
+    breaking: true
+    scope: operation
+    extra_write_scopes: [/components]
+    guidance: >-
+      Serve the error body as application/problem+json (RFC 9457): rename or add the media
+      type, and point its schema to a Problem schema with type, title, status, detail and
+      instance, creating it under /components/schemas if missing.
+
+  gov-property-camel:
+    fix_class: auto
+    breaking: true
+    scope: schema
+    extra_write_scopes: []
+    guidance: >-
+      Rename the property to camelCase with `move` (pet_name -> petName) and update every
+      reference inside the schema: `required` entries and examples.
+
+  gov-security-defined:
+    fix_class: needs_human_input
+    breaking: true
+    scope: /
+    extra_write_scopes: []
+    guidance: >-
+      Choosing an authentication scheme is a business and security decision.

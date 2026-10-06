@@ -6,7 +6,6 @@ info:
     email: api-team@example.com
 servers:
   - url: https://api.example.com/v1
-  - url: http://staging.example.com/v1
 security:
   - apiKey: []
 tags:
@@ -17,7 +16,6 @@ paths:
       tags: [pets]
       summary: List pets
       description: Returns every pet in the store.
-      operationId: listPets
       responses:
         "200":
           description: A list of pets.

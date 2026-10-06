@@ -6,7 +6,6 @@ info:
     email: api-team@example.com
 servers:
   - url: https://api.example.com/v1
-  - url: http://staging.example.com/v1
 security:
   - apiKey: []
 tags:
@@ -27,8 +26,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Pet"
-        "400":
-          $ref: "#/components/responses/Problem"
 components:
   securitySchemes:
     apiKey:

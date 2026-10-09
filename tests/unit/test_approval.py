@@ -29,7 +29,14 @@ def outcome(meta: RuleMeta, status: FixStatus = FixStatus.RESOLVED) -> FixOutcom
         breaking=meta.breaking,  # what the agent does: copied from the rule metadata
         attempt=1,
     )
-    return FixOutcome(group_id=meta.rule_id, status=status, proposal=proposal, attempts=1)
+    return FixOutcome(
+        group_id=meta.rule_id,
+        rule_id=meta.rule_id,
+        scope_pointer="/info",
+        status=status,
+        proposal=proposal,
+        attempts=1,
+    )
 
 
 def report(*outcomes: FixOutcome) -> AnalysisReport:

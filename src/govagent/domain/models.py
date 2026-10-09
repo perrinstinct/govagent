@@ -71,6 +71,8 @@ class FixStatus(StrEnum):
 
 class FixOutcome(BaseModel, frozen=True):
     group_id: str
+    rule_id: str
+    scope_pointer: str
     status: FixStatus
     proposal: FixProposal | None
     attempts: int

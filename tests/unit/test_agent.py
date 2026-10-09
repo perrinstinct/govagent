@@ -60,6 +60,7 @@ def test_resolved_on_first_try() -> None:
 
     [outcome] = report.outcomes
     assert outcome.status is FixStatus.RESOLVED
+    assert (outcome.rule_id, outcome.scope_pointer) == ("gov-operation-summary", POST)
     assert outcome.attempts == 1
     assert outcome.proposal is not None
     assert outcome.proposal.breaking is False

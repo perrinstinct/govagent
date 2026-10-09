@@ -172,6 +172,8 @@ class Nodes:
         keep_proposal = status in (FixStatus.RESOLVED, FixStatus.FAILED, FixStatus.REJECTED_SCOPE)
         outcome = FixOutcome(
             group_id=group.id,
+            rule_id=group.rule_id,
+            scope_pointer=group.scope_pointer,
             status=status,
             proposal=state.candidate if keep_proposal else None,
             attempts=state.attempt,

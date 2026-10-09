@@ -69,9 +69,9 @@ def _print_report(report: AnalysisReport) -> None:
     for outcome in report.outcomes:
         proposal = outcome.proposal
         breaking = " BREAKING" if proposal is not None and proposal.breaking else ""
-        typer.echo(
-            f"{outcome.status.value:18} attempts={outcome.attempts}{breaking}  {outcome.group_id}"
-        )
+        scope = outcome.scope_pointer or "/"
+        typer.echo(f"{outcome.status.value:18} {outcome.rule_id} at {scope}{breaking}")
+        typer.echo(f"{'':18} attempts={outcome.attempts}")
         if proposal is not None:
             typer.echo(f"{'':18} {proposal.rationale}")
     usage = report.usage

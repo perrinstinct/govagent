@@ -22,6 +22,9 @@ def test_unmodified_commented_yaml_round_trips_byte_identical() -> None:
         # 4-space mappings, unindented sequences, explicit document start
         "---\nopenapi: 3.1.0\ninfo:\n    title: t\n    version: '1'\ntags:\n- name: a\n"
         "- name: b\n  description: second\npaths: {}\n",
+        # 4-space mappings, items written `-   key:` (content aligned on the mapping indent)
+        "openapi: 3.1.0\ninfo:\n    title: t\n    version: '1'\nservers:\n-   url: https://a\n"
+        "    description: x\npaths: {}\n",
         # no trailing newline
         "openapi: 3.1.0\ninfo:\n  title: t\n  version: '1'\npaths: {}",
     ],

@@ -39,6 +39,7 @@ class SpecStyle:
     format: Literal["yaml", "json"]
     mapping_indent: int = 2
     sequence_offset: int = 0  # columns between a parent key and the `-` of its items
+    sequence_indent: int = 2  # columns between a parent key and the content of its items
     explicit_start: bool = False  # document starts with `---`
     json_indent: int | str | None = 2  # None: single-line JSON; str: tab indentation
     json_compact: bool = False  # single-line JSON without spaces after `,` and `:`
@@ -170,7 +171,7 @@ def _yaml(style: SpecStyle) -> YAML:
     yaml.brace_single_entry_mapping_in_flow_sequence = True  # keep `[{name: pets}]` braced
     yaml.indent(
         mapping=style.mapping_indent,
-        sequence=style.sequence_offset + 2,
+        sequence=style.sequence_indent,
         offset=style.sequence_offset,
     )
     yaml.explicit_start = style.explicit_start
@@ -195,6 +196,7 @@ def _detect_style(text: str) -> SpecStyle:
 
     mapping_indent: int | None = None
     sequence_offset: int | None = None
+    sequence_indent: int | None = None
     lines = [ln for ln in text.splitlines() if ln.strip() and not ln.lstrip().startswith("#")]
     for parent, child in itertools.pairwise(lines):
         if not _MAPPING_KEY_LINE.match(parent) or parent.lstrip().startswith("- "):
@@ -203,15 +205,20 @@ def _detect_style(text: str) -> SpecStyle:
         child_col = len(child) - len(child.lstrip())
         if child.lstrip().startswith("- "):
             if sequence_offset is None:
-                sequence_offset = child_col - parent_col
+                after_dash = child[child_col + 1 :]
+                content_col = child_col + 1 + len(after_dash) - len(after_dash.lstrip(" "))
+                sequence_offset = child_col - parent_col  # `-` position
+                sequence_indent = content_col - parent_col  # `-   url`: content after the dash
         elif mapping_indent is None and child_col > parent_col:
             mapping_indent = child_col - parent_col
         if mapping_indent is not None and sequence_offset is not None:
             break
+    offset = sequence_offset if sequence_offset is not None else 0
     return SpecStyle(
         "yaml",
         mapping_indent=mapping_indent or 2,
-        sequence_offset=sequence_offset if sequence_offset is not None else 0,
+        sequence_offset=offset,
+        sequence_indent=sequence_indent if sequence_indent is not None else offset + 2,
         explicit_start=text.startswith("---"),
         trailing_newline=trailing_newline,
     )

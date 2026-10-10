@@ -1,0 +1,136 @@
+openapi: 3.1.0
+info:
+    title: Bookshop
+    version: 1.0.0
+    description: Catalogue and orders of an online bookshop.
+    contact:
+        email: books-api@example.com
+servers:
+-   url: https://api.bookshop.example.com
+security:
+-   bearerAuth: []
+tags:
+-   name: books
+-   name: orders
+paths:
+    /books:
+        get:
+            tags: [books]
+            summary: Search books
+            description: Full-text search over titles and authors.
+            operationId: searchBooks
+            parameters:
+            -   name: query
+                in: query
+                schema:
+                    type: string
+            responses:
+                '200':
+                    description: Matching books.
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/Book'
+                '400':
+                    description: Invalid search query.
+                    content:
+                        application/problem+json:
+                            schema:
+                                $ref: '#/components/schemas/Problem'
+    /books/{isbn}:
+        get:
+            tags: [books]
+            summary: Get a book
+            description: Returns a book by ISBN.
+            operationId: getBook
+            parameters:
+            -   name: isbn
+                in: path
+                required: true
+                schema:
+                    type: string
+            responses:
+                '200':
+                    description: The book.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Book'
+                '404':
+                    description: Unknown ISBN.
+                    content:
+                        application/problem+json:
+                            schema:
+                                $ref: '#/components/schemas/Problem'
+    /shopping-carts/{cartId}/checkout:
+        post:
+            tags: [orders]
+            summary: Check out a cart
+            description: Turns a shopping cart into an order and charges the customer.
+            operationId: checkoutCart
+            parameters:
+            -   name: cartId
+                in: path
+                required: true
+                schema:
+                    type: string
+            responses:
+                '201':
+                    description: The created order.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Order'
+                '409':
+                    description: The cart is empty or already checked out.
+                    content:
+                        application/problem+json:
+                            schema:
+                                $ref: '#/components/schemas/Problem'
+                '503':
+                    description: The payment provider is unavailable.
+                    content:
+                        application/problem+json:
+                            schema:
+                                $ref: '#/components/schemas/Problem'
+components:
+    securitySchemes:
+        bearerAuth:
+            type: http
+            scheme: bearer
+    schemas:
+        Book:
+            type: object
+            required: [isbn, title]
+            properties:
+                isbn:
+                    type: string
+                title:
+                    type: string
+                authorNames:
+                    type: array
+                    items:
+                        type: string
+                publishedYear:
+                    type: integer
+        Order:
+            type: object
+            required: [orderId, totalAmount]
+            properties:
+                orderId:
+                    type: string
+                totalAmount:
+                    type: number
+                currencyCode:
+                    type: string
+        Problem:
+            type: object
+            properties:
+                type:
+                    type: string
+                title:
+                    type: string
+                status:
+                    type: integer

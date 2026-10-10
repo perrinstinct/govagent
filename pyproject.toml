@@ -34,7 +34,7 @@ dev = [
 [tool.ruff]
 line-length = 100
 target-version = "py312"
-src = ["src", "tests"]
+src = ["src", "tests", "evals"]
 
 [tool.ruff.format]
 # Leave code blocks in Markdown (docs/SPEC.md) as written.
@@ -47,12 +47,16 @@ select = [
     "T20", # no print: use structlog
 ]
 
+[tool.ruff.lint.isort]
+known-first-party = ["govagent", "evals", "tests"]
+
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S101", "S603", "S607"]
+"tests/**" = ["S101", "S311", "S603", "S607"]
+"evals/**" = ["S311"]  # seeded `random` on purpose: reproducible datasets, not cryptography
 
 [tool.pyright]
-include = ["src", "tests"]
-strict = ["src"]
+include = ["src", "tests", "evals"]
+strict = ["src", "evals"]
 pythonVersion = "3.12"
 venvPath = "."
 venv = ".venv"

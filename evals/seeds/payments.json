@@ -1,0 +1,271 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Payments",
+    "version": "3.2.0",
+    "description": "Create and refund card payments.",
+    "contact": {
+      "email": "payments-api@example.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.payments.example.com/v3"
+    }
+  ],
+  "security": [
+    {
+      "oauth": [
+        "payments"
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "name": "payments"
+    },
+    {
+      "name": "refunds"
+    }
+  ],
+  "paths": {
+    "/payments": {
+      "post": {
+        "tags": [
+          "payments"
+        ],
+        "summary": "Create a payment",
+        "description": "Charges a card and returns the payment.",
+        "operationId": "createPayment",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The payment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Payment"
+                }
+              }
+            }
+          },
+          "422": {
+            "$ref": "#/components/responses/Unprocessable"
+          }
+        }
+      }
+    },
+    "/payments/{paymentId}": {
+      "get": {
+        "tags": [
+          "payments"
+        ],
+        "summary": "Get a payment",
+        "description": "Returns one payment.",
+        "operationId": "getPayment",
+        "parameters": [
+          {
+            "name": "paymentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The payment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Payment"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/payments/{paymentId}/refunds": {
+      "post": {
+        "tags": [
+          "refunds"
+        ],
+        "summary": "Refund a payment",
+        "description": "Refunds all or part of a captured payment.",
+        "operationId": "refundPayment",
+        "parameters": [
+          {
+            "name": "paymentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefundRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The refund.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Refund"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/Unprocessable"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "oauth": {
+        "type": "oauth2",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "https://auth.payments.example.com/token",
+            "scopes": {
+              "payments": "Create and read payments"
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "NotFound": {
+        "description": "The payment does not exist.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "Unprocessable": {
+        "description": "The request is valid JSON but cannot be processed.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "PaymentRequest": {
+        "type": "object",
+        "required": [
+          "amountCents",
+          "currencyCode",
+          "cardToken"
+        ],
+        "properties": {
+          "amountCents": {
+            "type": "integer"
+          },
+          "currencyCode": {
+            "type": "string"
+          },
+          "cardToken": {
+            "type": "string"
+          }
+        }
+      },
+      "Payment": {
+        "type": "object",
+        "required": [
+          "paymentId",
+          "status"
+        ],
+        "properties": {
+          "paymentId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "captured",
+              "refunded"
+            ]
+          },
+          "amountCents": {
+            "type": "integer"
+          }
+        }
+      },
+      "RefundRequest": {
+        "type": "object",
+        "properties": {
+          "amountCents": {
+            "type": "integer"
+          },
+          "reasonCode": {
+            "type": "string"
+          }
+        }
+      },
+      "Refund": {
+        "type": "object",
+        "required": [
+          "refundId"
+        ],
+        "properties": {
+          "refundId": {
+            "type": "string"
+          },
+          "amountCents": {
+            "type": "integer"
+          }
+        }
+      },
+      "Problem": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  }
+}

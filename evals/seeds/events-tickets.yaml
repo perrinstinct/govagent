@@ -1,0 +1,204 @@
+# Events & ticketing API: eval seed (lint-clean).
+openapi: 3.0.3
+info:
+  title: Events and Tickets
+  version: 4.0.0
+  description: Browse events, hold seats and buy tickets.
+  contact:
+    email: ticketing@example.com
+servers:
+  - url: https://api.tickets.example.com/v4
+security:
+  - apiKey: []
+tags:
+  - name: events
+  - name: tickets
+  - name: venues
+paths:
+  /events:
+    get:
+      tags: [events]
+      summary: List upcoming events
+      description: Returns events starting after now, soonest first.
+      operationId: listEvents
+      parameters:
+        - name: venueId
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The events.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Event"
+        "400":
+          $ref: "#/components/responses/Problem"
+  /events/{eventId}/seat-holds:
+    post:
+      tags: [tickets]
+      summary: Hold seats
+      description: Holds seats for ten minutes while the buyer pays.
+      operationId: createSeatHold
+      parameters:
+        - name: eventId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SeatHoldRequest"
+      responses:
+        "201":
+          description: The hold.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SeatHold"
+        "409":
+          $ref: "#/components/responses/Problem"
+  /tickets/{ticketId}:
+    get:
+      tags: [tickets]
+      summary: Get a ticket
+      description: Returns a purchased ticket with its barcode.
+      operationId: getTicket
+      parameters:
+        - name: ticketId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The ticket.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ticket"
+        "404":
+          $ref: "#/components/responses/Problem"
+    delete:
+      tags: [tickets]
+      summary: Cancel a ticket
+      description: Cancels a ticket and triggers the refund when allowed.
+      operationId: cancelTicket
+      parameters:
+        - name: ticketId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: The ticket was cancelled.
+        "409":
+          $ref: "#/components/responses/Problem"
+        "502":
+          description: The refund provider failed.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /venues/{venueId}:
+    get:
+      tags: [venues]
+      summary: Get a venue
+      description: Returns a venue and its seating plan.
+      operationId: getVenue
+      parameters:
+        - name: venueId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The venue.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Venue"
+        "404":
+          $ref: "#/components/responses/Problem"
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+  responses:
+    Problem:
+      description: The request failed.
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+  schemas:
+    Event:
+      type: object
+      required: [eventId, startsAt]
+      properties:
+        eventId:
+          type: string
+        eventName:
+          type: string
+        startsAt:
+          type: string
+          format: date-time
+        venueId:
+          type: string
+    SeatHoldRequest:
+      type: object
+      required: [seatCount]
+      properties:
+        seatCount:
+          type: integer
+          minimum: 1
+        priceCategory:
+          type: string
+    SeatHold:
+      type: object
+      required: [holdId, expiresAt]
+      properties:
+        holdId:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+    Ticket:
+      type: object
+      required: [ticketId, barcodeValue]
+      properties:
+        ticketId:
+          type: string
+        barcodeValue:
+          type: string
+        seatLabel:
+          type: string
+    Venue:
+      type: object
+      required: [venueId, venueName]
+      properties:
+        venueId:
+          type: string
+        venueName:
+          type: string
+        seatingCapacity:
+          type: integer
+    Problem:
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer

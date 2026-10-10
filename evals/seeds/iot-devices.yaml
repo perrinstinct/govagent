@@ -1,0 +1,114 @@
+openapi: 3.0.3
+info:
+  title: IoT Devices
+  version: 0.9.0
+  description: Register devices and read their telemetry.
+  contact: {name: Platform team, email: iot-platform@example.com}
+servers:
+- url: https://{region}.iot.example.com/api
+  variables:
+    region:
+      default: eu
+      enum: [eu, us]
+security:
+- apiKey: []
+tags:
+- name: devices
+- name: telemetry
+paths:
+  /devices:
+    get:
+      tags: [devices]
+      summary: List devices
+      description: Returns the registered devices of the caller's fleet.
+      operationId: listDevices
+      responses:
+        '200':
+          description: The devices.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/Device'}
+        '401':
+          description: Missing or invalid API key.
+          content:
+            application/problem+json:
+              schema: {$ref: '#/components/schemas/Problem'}
+    post:
+      tags: [devices]
+      summary: Register a device
+      description: Adds a device to the caller's fleet.
+      operationId: registerDevice
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/Device'}
+      responses:
+        '201':
+          description: The registered device.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Device'}
+        '409':
+          description: A device with this serial number already exists.
+          content:
+            application/problem+json:
+              schema: {$ref: '#/components/schemas/Problem'}
+  /devices/{deviceId}/telemetry-readings:
+    get:
+      tags: [telemetry]
+      summary: Read telemetry
+      description: Returns the latest telemetry readings of a device.
+      operationId: listTelemetryReadings
+      parameters:
+      - name: deviceId
+        in: path
+        required: true
+        schema: {type: string}
+      - name: since
+        in: query
+        schema: {type: string, format: date-time}
+      responses:
+        '200':
+          description: The readings, oldest first.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/TelemetryReading'}
+        '404':
+          description: Unknown device.
+          content:
+            application/problem+json:
+              schema: {$ref: '#/components/schemas/Problem'}
+        '500':
+          description: The telemetry store failed.
+          content:
+            application/problem+json:
+              schema: {$ref: '#/components/schemas/Problem'}
+components:
+  securitySchemes:
+    apiKey: {type: apiKey, in: header, name: X-Api-Key}
+  schemas:
+    Device:
+      type: object
+      required: [serialNumber, firmwareVersion]
+      properties:
+        serialNumber: {type: string}
+        firmwareVersion: {type: string}
+        lastSeenAt: {type: string, format: date-time}
+    TelemetryReading:
+      type: object
+      required: [recordedAt]
+      properties:
+        recordedAt: {type: string, format: date-time}
+        temperatureCelsius: {type: number}
+        batteryLevel: {type: integer, minimum: 0, maximum: 100}
+    Problem:
+      type: object
+      properties:
+        type: {type: string}
+        title: {type: string}
+        status: {type: integer}

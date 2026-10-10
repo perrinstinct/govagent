@@ -2,7 +2,8 @@
 
 Calls the real model (Bedrock) for every case: this costs money. `--max-total-cost` stops the
 run before the next case once the cap is reached (per-case budgets from Settings still apply).
-Writes evals/results/<date>_<subset>_<model>.json (summary + every case) and .md (tables).
+Writes evals/results/<date>_<subset>_<model>.json (summary + every case), .md (tables) and
+.calls.jsonl (every model call: exact prompts, structured output, tokens, cost, latency).
 """
 
 import datetime as dt
@@ -21,8 +22,15 @@ from govagent.agent.nodes import AgentDeps
 from govagent.agent.runner import run_agent
 from govagent.agent.state import Budget
 from govagent.core.spec_io import load_spec
-from govagent.domain.errors import GovagentError, InvalidSpecError, UnsupportedSpecError
-from govagent.domain.models import Usage, Violation
+from govagent.domain.errors import (
+    GovagentError,
+    InvalidSpecError,
+    LLMError,
+    ModelOutputError,
+    UnsupportedSpecError,
+)
+from govagent.domain.models import FixRequest, LLMFixOutput, Usage, Violation
+from govagent.domain.ports import FixModel
 
 RESULTS_DIR = Path(__file__).resolve().parent / "results"
 
@@ -32,28 +40,118 @@ class EvalRun(BaseModel, frozen=True):
     cases: list[CaseResult]
 
 
+class CallRecord(BaseModel, frozen=True):
+    """One model call, exactly as sent and received."""
+
+    case_id: str
+    group_id: str
+    attempt: int
+    system_prompt: str
+    user_prompt: str
+    output: LLMFixOutput | None  # None when the call failed
+    error: str | None
+    usage: Usage  # paid even when the output did not match the schema
+    latency_ms: int
+
+
+class RecordingFixModel:
+    """Decorator around a FixModel: same port, records every call. Source of truth for spend."""
+
+    def __init__(self, inner: FixModel) -> None:
+        self._inner = inner
+        self.case_id = ""
+        self.calls: list[CallRecord] = []
+
+    def propose(self, request: FixRequest) -> tuple[LLMFixOutput, Usage]:
+        started = time.monotonic()
+        try:
+            output, usage = self._inner.propose(request)
+        except ModelOutputError as exc:
+            self._record(request, None, f"ModelOutputError: {exc}", exc.usage, started)
+            raise
+        except LLMError as exc:
+            self._record(request, None, f"LLMError: {exc}", Usage(), started)
+            raise
+        self._record(request, output, None, usage, started)
+        return output, usage
+
+    def usage_for(self, case_id: str) -> Usage:
+        calls = [call.usage for call in self.calls if call.case_id == case_id]
+        return Usage(
+            llm_calls=sum(u.llm_calls for u in calls),
+            input_tokens=sum(u.input_tokens for u in calls),
+            output_tokens=sum(u.output_tokens for u in calls),
+            cost_usd=sum(u.cost_usd for u in calls),
+        )
+
+    def _record(
+        self,
+        request: FixRequest,
+        output: LLMFixOutput | None,
+        error: str | None,
+        usage: Usage,
+        started: float,
+    ) -> None:
+        self.calls.append(
+            CallRecord(
+                case_id=self.case_id,
+                group_id=request.group_id,
+                attempt=request.attempt,
+                system_prompt=request.system_prompt,
+                user_prompt=request.user_prompt,
+                output=output,
+                error=error,
+                usage=usage,
+                latency_ms=_elapsed_ms(started),
+            )
+        )
+
+
+class Evaluation(BaseModel, frozen=True):
+    results: list[CaseResult]
+    skipped: int  # cases not run: global cost cap reached, or stopped after repeated errors
+    calls: list[CallRecord]
+    stopped_reason: str | None = None
+
+
 def evaluate(
     cases: Sequence[Case],
     deps: AgentDeps,
     budget: Budget,
     max_total_cost_usd: float,
     on_case: Callable[[int, CaseResult], None] | None = None,
-) -> tuple[list[CaseResult], int]:
-    """Run every case in order; stop before a case once the global cost cap is reached."""
+    max_consecutive_errors: int = 3,
+) -> Evaluation:
+    """Run every case in order. Stop before a case once the global cost cap is reached, or
+    after `max_consecutive_errors` errored cases in a row (access or configuration problem)."""
+    recorder = RecordingFixModel(deps.fix_model)
+    recorded = AgentDeps(linter=deps.linter, fix_model=recorder, rules_meta=deps.rules_meta)
     results: list[CaseResult] = []
-    spent = 0.0
     for index, case in enumerate(cases):
-        if spent >= max_total_cost_usd:
-            return results, len(cases) - index
-        result = _run_case(case, deps, budget)
-        spent += result.usage.cost_usd
+        reason = None
+        if sum(call.usage.cost_usd for call in recorder.calls) >= max_total_cost_usd:
+            reason = f"cost cap of ${max_total_cost_usd:.2f} reached"
+        recent = results[-max_consecutive_errors:]
+        if len(recent) == max_consecutive_errors and all(r.error for r in recent):
+            reason = f"{max_consecutive_errors} errored cases in a row: {recent[-1].error}"
+        if reason is not None:
+            return Evaluation(
+                results=results,
+                skipped=len(cases) - index,
+                calls=recorder.calls,
+                stopped_reason=reason,
+            )
+        recorder.case_id = case.id
+        result = _run_case(case, recorded, budget, recorder)
         results.append(result)
         if on_case is not None:
             on_case(index, result)
-    return results, 0
+    return Evaluation(results=results, skipped=0, calls=recorder.calls)
 
 
-def _run_case(case: Case, deps: AgentDeps, budget: Budget) -> CaseResult:
+def _run_case(
+    case: Case, deps: AgentDeps, budget: Budget, recorder: RecordingFixModel
+) -> CaseResult:
     started = time.monotonic()
     common: dict[str, Any] = {
         "case_id": case.id,
@@ -70,7 +168,7 @@ def _run_case(case: Case, deps: AgentDeps, budget: Budget) -> CaseResult:
             final=list(case.injected),
             outcomes=[],
             final_valid=False,
-            usage=Usage(),
+            usage=recorder.usage_for(case.id),  # calls made before the error were paid
             latency_ms=_elapsed_ms(started),
             error=f"{type(exc).__name__}: {exc}",
         )
@@ -161,15 +259,20 @@ def main(
             f"${result.usage.cost_usd:.4f} {result.latency_ms / 1000:.1f}s"
         )
 
-    results, skipped = evaluate(cases, deps, budget, max_total_cost, progress)
-    summary = summarize(model_id, subset, results, skipped)
+    evaluation = evaluate(cases, deps, budget, max_total_cost, progress)
+    if evaluation.stopped_reason is not None:
+        skipped, reason = evaluation.skipped, evaluation.stopped_reason
+        typer.echo(f"stopped early ({skipped} cases not run): {reason}")
+    summary = summarize(model_id, subset, evaluation.results, evaluation.skipped)
     RESULTS_DIR.mkdir(exist_ok=True)
     stem = f"{dt.date.today().isoformat()}_{subset}_{model_slug(model_id)}"
-    run = EvalRun(summary=summary, cases=results)
+    run = EvalRun(summary=summary, cases=evaluation.results)
     (RESULTS_DIR / f"{stem}.json").write_text(run.model_dump_json(indent=2) + "\n")
     (RESULTS_DIR / f"{stem}.md").write_text(render_markdown(summary))
+    calls = "".join(call.model_dump_json(by_alias=True) + "\n" for call in evaluation.calls)
+    (RESULTS_DIR / f"{stem}.calls.jsonl").write_text(calls)
     typer.echo(render_markdown(summary))
-    typer.echo(f"results written to {RESULTS_DIR / stem}.{{json,md}}")
+    typer.echo(f"results written to {RESULTS_DIR / stem}.{{json,md,calls.jsonl}}")
 
 
 if __name__ == "__main__":

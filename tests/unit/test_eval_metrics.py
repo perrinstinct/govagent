@@ -78,6 +78,7 @@ def test_errored_case_counts_as_unfixed_but_not_as_regression() -> None:
     summary = summarize("m", "smoke", [result([SUMMARY], [SUMMARY], error="LLMError: x")], 0)
 
     assert summary.errors == 1
+    assert summary.sanity_rate == 0.0  # no completed case: nothing to measure, not "undetected"
     assert summary.fix_rate == 0.0
     assert summary.regression_rate == 0.0
 

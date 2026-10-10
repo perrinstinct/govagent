@@ -6,7 +6,7 @@ Seeds are lint-clean, so every violation in a case is either injected or caused 
 - a regression is a final violation of a rule that was not injected, or more violations of a
   rule than were injected.
 Cases that errored count their injected violations as not fixed; they are excluded from the
-regression and valid-spec rates, and reported separately.
+sanity, regression and valid-spec rates, and reported separately.
 """
 
 import math
@@ -124,7 +124,7 @@ def summarize(model_id: str, subset: str, results: Sequence[CaseResult], skipped
         cases=len(results),
         errors=len(results) - len(completed),
         skipped=skipped,
-        sanity_rate=_ratio(sum(r.sane for r in results), len(results)),
+        sanity_rate=_ratio(sum(r.sane for r in completed), len(completed)),
         injected=injected_total,
         fixed=fixed_total,
         fix_rate=_ratio(fixed_total, injected_total),

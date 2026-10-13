@@ -14,6 +14,7 @@ from govagent.core.fragments import render_fragment
 from govagent.core.grouping import group_violations, needs_human
 from govagent.core.integrity import dangling_required
 from govagent.core.patching import apply_patch
+from govagent.core.pointer_hints import pointer_hints
 from govagent.core.pointers import normalize_scope
 from govagent.core.scope_guard import scope_violations
 from govagent.core.spec_io import SpecDocument, dump_spec, load_spec, resolve
@@ -125,7 +126,9 @@ class Nodes:
         meta = self._meta[group.rule_id]
         problems = scope_violations(proposal.ops, group.scope_pointer, meta.extra_write_scopes)
         if problems:
-            return _failed(state, "scope", "Operations outside the allowed scopes:", problems)
+            root = load_spec(state.spec_text, validate_openapi=False).root
+            details = [*problems, *_hints(root, proposal)]
+            return _failed(state, "scope", "Operations outside the allowed scopes:", details)
         return {}
 
     def apply_verify(self, state: AgentState) -> Update:
@@ -134,7 +137,8 @@ class Nodes:
         try:
             patched_root = apply_patch(spec.root, proposal.ops)
         except (PatchError, PointerError) as exc:
-            return _failed(state, "patch", "The patch could not be applied:", [str(exc)])
+            details = [str(exc), *_hints(spec.root, proposal)]
+            return _failed(state, "patch", "The patch could not be applied:", details)
         dangling = dangling_required(patched_root) - dangling_required(spec.root)
         if dangling:
             details = [
@@ -230,6 +234,11 @@ def _failed(state: AgentState, failure: Failure, title: str, details: list[str])
         [f"Previous operations: {render_ops(proposal.ops)}", title, *(f"- {d}" for d in details)]
     )
     return {"failure": failure, "last_feedback": feedback}
+
+
+def _hints(root: Any, proposal: FixProposal) -> list[str]:
+    """Correctly escaped pointers for the ones that do not resolve (see core/pointer_hints)."""
+    return [f"hint: {hint}" for hint in pointer_hints(root, proposal.ops)]
 
 
 def _budget_exhausted(state: AgentState) -> bool:

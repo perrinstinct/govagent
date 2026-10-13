@@ -14,6 +14,11 @@ Rules:
 - Use only the operations add, remove, replace and move. No copy, no test.
 - JSON pointers are absolute, from the document root (RFC 6901). Escape "~" as "~0" and "/" as
   "~1" inside a key: the path key /pets/{id} is written /paths/~1pets~1{id}.
+- The HTTP method is a separate segment, never part of the path key: the DELETE operation of
+  /tickets/{id} is /paths/~1tickets~1{id}/delete (not /paths/~1tickets~1{id}~1delete).
+- A path key ending with "/" ends with "~1" in the pointer: /pets/ is /paths/~1pets~1, with
+  nothing after it.
+- Copy pointers from the violations and allowed scopes above rather than rebuilding them.
 - Write only under the allowed scopes listed in the request. Any other operation is rejected.
 - Preserve the API's semantics. Do not invent business facts (emails, owners, auth schemes).
 - When renaming a key, use `move`, and update every reference inside the allowed scopes

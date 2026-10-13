@@ -216,3 +216,8 @@ def test_patch_is_atomic_and_leaves_input_untouched() -> None:
     with pytest.raises(PatchError, match="op #1"):
         apply_patch(spec.root, ops)
     assert dump_spec(spec) == COMMENTED
+
+
+def test_move_from_missing_source_names_the_source() -> None:
+    with pytest.raises(PatchError, match=r"'from' /info/x-nope does not exist"):
+        patched_text(op("move", "/info/x-b", from_="/info/x-nope"))

@@ -207,6 +207,18 @@ def test_patch_error_is_retried() -> None:
     assert "could not be applied" in model.requests[1].user_prompt
 
 
+def test_misescaped_pointer_gets_a_corrected_pointer_in_the_feedback() -> None:
+    glued = {"op": "add", "path": "/paths/~1pets~1post/summary", "value": "Create a pet"}
+    model = ScriptedModel(fix(glued), fix(ADD_SUMMARY))
+
+    report = run(model)
+
+    assert statuses(report) == [FixStatus.RESOLVED]
+    feedback = model.requests[1].user_prompt
+    assert "outside the allowed scopes" in feedback
+    assert f"hint: add path /paths/~1pets~1post/summary: did you mean {POST}/summary ?" in feedback
+
+
 def test_fix_producing_invalid_openapi_is_rejected() -> None:
     breaks_spec = fix(ADD_SUMMARY, {"op": "replace", "path": f"{POST}/responses", "value": "x"})
     model = ScriptedModel(breaks_spec, fix(ADD_SUMMARY))

@@ -42,7 +42,8 @@ def apply_patch(root: dict[str, Any], ops: list[PatchOp]) -> dict[str, Any]:
         try:
             _apply_op(patched, op)
         except PatchError as exc:
-            raise PatchError(f"op #{index} ({op.op} {op.path}): {exc}") from exc
+            target = op.path if op.from_ is None else f"{op.from_} -> {op.path}"
+            raise PatchError(f"op #{index} ({op.op} {target}): {exc}") from exc
     return patched
 
 
@@ -105,7 +106,7 @@ def _remove(root: dict[str, Any], segments: list[str]) -> Any:
         return cast(dict[str, Any], parent).pop(key)
     if isinstance(parent, list) and _valid_index(key, len(cast(list[Any], parent))):
         return cast(list[Any], parent).pop(int(key))
-    raise PatchError("target does not exist")
+    raise PatchError(f"{format_pointer(segments)} does not exist")
 
 
 def _replace(root: dict[str, Any], segments: list[str], value: Any) -> None:
@@ -115,7 +116,7 @@ def _replace(root: dict[str, Any], segments: list[str], value: Any) -> None:
     elif isinstance(parent, list) and _valid_index(key, len(cast(list[Any], parent))):
         _assign(cast(list[Any], parent), int(key), value)
     else:
-        raise PatchError("target does not exist")
+        raise PatchError(f"{format_pointer(segments)} does not exist")
 
 
 def _assign(container: dict[str, Any] | list[Any], key: Any, value: Any) -> None:
@@ -171,7 +172,12 @@ def _move(root: dict[str, Any], op: PatchOp) -> None:
     if target[: len(source)] == source:
         raise PatchError("cannot move a node into one of its descendants")
 
-    source_parent, source_key = _parent(root, source)
+    try:
+        source_parent, source_key = _parent(root, source)
+        if not _exists(source_parent, source_key):
+            raise PatchError(f"{op.from_} does not exist")
+    except PatchError as exc:
+        raise PatchError(f"'from' {op.from_} does not exist") from exc
     if (
         isinstance(source_parent, CommentedMap)
         and source_key in source_parent
@@ -181,6 +187,12 @@ def _move(root: dict[str, Any], op: PatchOp) -> None:
         _rename_key(source_parent, source_key, target[-1])
         return
     _add(root, target, _remove(root, source))
+
+
+def _exists(parent: Any, key: str) -> bool:
+    if isinstance(parent, dict):
+        return key in parent
+    return isinstance(parent, list) and _valid_index(key, len(cast(list[Any], parent)))
 
 
 def _rename_key(mapping: CommentedMap, old: str, new: str) -> None:

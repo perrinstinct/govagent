@@ -47,14 +47,8 @@ class BedrockFixModel:
         ]
         if missing:
             raise ConfigError(f"missing settings to call Bedrock: {', '.join(missing)}")
-        chat_model = ChatBedrockConverse(
-            model=cast(str, settings.model_id),
-            region_name=settings.aws_region,
-            temperature=0,
-            max_tokens=max_tokens,
-        )
         return cls(
-            chat_model,
+            build_chat_model(settings, max_tokens),
             cast(float, settings.price_input_per_mtok),
             cast(float, settings.price_output_per_mtok),
         )
@@ -81,3 +75,15 @@ class BedrockFixModel:
         return Usage(
             llm_calls=1, input_tokens=input_tokens, output_tokens=output_tokens, cost_usd=cost
         )
+
+
+def build_chat_model(settings: Settings, max_tokens: int) -> ChatBedrockConverse:
+    """Converse client with only the request parameters the configured model accepts."""
+    extra_fields = {"thinking": {"type": "disabled"}} if settings.model_disable_thinking else None
+    return ChatBedrockConverse(
+        model=cast(str, settings.model_id),
+        region_name=settings.aws_region,
+        temperature=settings.model_temperature,  # None: not sent, the model's default applies
+        max_tokens=max_tokens,
+        additional_model_request_fields=extra_fields,
+    )

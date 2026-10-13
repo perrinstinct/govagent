@@ -6,7 +6,7 @@ from typing import Any
 import pytest
 from botocore.exceptions import ClientError  # pyright: ignore[reportMissingTypeStubs]
 
-from govagent.adapters.bedrock import BedrockFixModel
+from govagent.adapters.bedrock import BedrockFixModel, build_chat_model
 from govagent.config import Settings
 from govagent.domain.errors import ConfigError, LLMError, ModelOutputError
 from govagent.domain.models import FixRequest, LLMFixOutput
@@ -83,3 +83,24 @@ def test_from_settings_requires_model_region_and_prices(clean_env: pytest.Monkey
     assert "GOVAGENT_MODEL_ID" not in message
     assert "GOVAGENT_AWS_REGION" in message
     assert "GOVAGENT_PRICE_INPUT_PER_MTOK" in message
+
+
+def test_request_parameters_follow_settings(clean_env: pytest.MonkeyPatch) -> None:
+    clean_env.setenv("GOVAGENT_MODEL_ID", "eu.anthropic.claude-haiku-5-5")
+    clean_env.setenv("GOVAGENT_AWS_REGION", "eu-west-3")
+    clean_env.setenv("GOVAGENT_MODEL_DISABLE_THINKING", "true")
+
+    chat = build_chat_model(Settings(_env_file=None), max_tokens=2048)  # pyright: ignore[reportCallIssue]
+
+    assert chat.temperature is None  # not sent: Haiku 5.5 rejects sampling parameters
+    assert chat.additional_model_request_fields == {"thinking": {"type": "disabled"}}
+
+
+def test_defaults_send_neither_temperature_nor_thinking(clean_env: pytest.MonkeyPatch) -> None:
+    clean_env.setenv("GOVAGENT_MODEL_ID", "some-model")
+    clean_env.setenv("GOVAGENT_AWS_REGION", "eu-west-3")
+
+    chat = build_chat_model(Settings(_env_file=None), max_tokens=2048)  # pyright: ignore[reportCallIssue]
+
+    assert chat.temperature is None
+    assert chat.additional_model_request_fields is None

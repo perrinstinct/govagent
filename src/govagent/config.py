@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     aws_region: str | None = None
     price_input_per_mtok: float | None = Field(default=None, ge=0)
     price_output_per_mtok: float | None = Field(default=None, ge=0)
+    # Request parameters that differ between models (e.g. Haiku 5.5 rejects `temperature`).
+    model_temperature: float | None = Field(default=None, ge=0, le=1)  # None: model default
+    model_disable_thinking: bool = False  # needed where thinking is on by default
 
     # Ruleset and linter
     ruleset_path: Path = Path("rulesets/governance.spectral.yaml")

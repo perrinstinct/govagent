@@ -176,7 +176,8 @@ Interactive mode shows a colored diff per proposal (with a BREAKING badge) and a
 **MCP server (FastMCP, streamable HTTP, stateless)**, mounted in a Starlette app with `/healthz`:
 - `lint_spec(spec_content?: str, repo?: str, path?: str, ref?: str) -> violations`
 - `propose_fixes(spec_content? | repo/path/ref) -> {analysis_id, summary, proposals[] with unified diff preview + breaking flag, needs_human[]}`
-- `open_pull_request(analysis_id, approved_fix_ids[], repo, path, base) -> {pr_url}`
+- `apply_fixes(analysis_id, approved_fix_ids[]) -> {applied, remaining_violations, spec_content}` (M5: lets a client apply approved fixes without GitHub)
+- `open_pull_request(analysis_id, approved_fix_ids[], repo, path, base) -> {pr_url}` (M6)
 
 Analysis store: in-memory with 1h TTL (single task). Documented limitation; V2 = DynamoDB.
 Auth: `Authorization: Bearer <GOVAGENT_MCP_API_KEY>` middleware on everything except `/healthz`. Basic per-key rate limit.
@@ -207,8 +208,8 @@ One rule (`gov-operation-summary`), one fixture spec, CLI `fix`: lint → one Be
 ✅ Full run on Claude Haiku 4.5, results table committed (baseline and after each prompt change). Single model by choice: the cheapest Claude model already reaches a 100% fix rate, so a larger one has no headroom to show. A Claude Haiku 5.5 run is added once Bedrock opens it to the account.
 
 **M5 — Interfaces**
-CLI complete (§8), MCP server with auth + analysis store.
-✅ Claude Desktop (or MCP Inspector) connects to the local server and runs lint → propose → open PR end to end.
+CLI complete (§8, `govagent pr` arrives with M6), MCP server with auth + analysis store.
+✅ Claude Desktop (or MCP Inspector) connects to the local server and runs lint → propose → apply end to end. Opening the PR from MCP is checked in M6, with the GitHub adapter.
 
 **M6 — GitHub integration**
 §7 complete, allowlist, PR body template.

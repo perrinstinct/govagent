@@ -204,7 +204,7 @@ One rule (`gov-operation-summary`), one fixture spec, CLI `fix`: lint → one Be
 - `build_dataset.py`: single-violation cases (seed × mutator) + multi-violation cases (3–5 mutators combined). Stores expected fingerprints.
 - `run.py --model ID --subset smoke|full`: runs the graph per case, writes `evals/results/<date>_<model>.json` + `.md`.
 - Metrics: dataset sanity (linter detects 100% of injected violations), **fix rate** (auto-fixable resolved / injected), **regression rate** (cases with introduced violations), **valid spec rate** (openapi-spec-validator), mean attempts, **cost per case**, p50/p95 latency. Breakdown per rule.
-✅ Full run on two models (one small, one larger), results table committed.
+✅ Full run on Claude Haiku 4.5, results table committed (baseline and after each prompt change). Single model by choice: the cheapest Claude model already reaches a 100% fix rate, so a larger one has no headroom to show. A Claude Haiku 5.5 run is added once Bedrock opens it to the account.
 
 **M5 — Interfaces**
 CLI complete (§8), MCP server with auth + analysis store.
@@ -234,7 +234,7 @@ ADRs: 001 deterministic detection / LLM fixes only · 002 JSON Patch over full r
 ## 10. Definition of done (MVP)
 - [ ] Deployed on AWS, reachable over MCP from Claude Desktop, authenticated
 - [ ] One real PR opened on the public demo repo
-- [ ] Reproducible evals with published numbers for 2 models; smoke subset in CI
+- [ ] Reproducible evals with published numbers (Claude Haiku 4.5); smoke subset in CI
 - [ ] README with demo GIF + eval table + ADRs
 - [ ] Cost per analysis known and capped by config; AWS budget alarm active
 

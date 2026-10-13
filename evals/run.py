@@ -221,6 +221,9 @@ def main(
         float, typer.Option(help="Stop the run once this many USD have been spent.")
     ] = 1.0,
     dataset: Annotated[Path, typer.Option(help="JSONL dataset.")] = DATASET_PATH,
+    case: Annotated[
+        list[str] | None, typer.Option(help="Run only these case ids (repeatable).")
+    ] = None,
 ) -> None:
     from govagent.adapters.bedrock import BedrockFixModel
     from govagent.adapters.spectral import SpectralLinter
@@ -249,6 +252,12 @@ def main(
     )
     all_cases = load_cases(dataset)
     cases = smoke_subset(all_cases) if subset == "smoke" else all_cases
+    if case:
+        unknown = set(case) - {c.id for c in all_cases}
+        if unknown:
+            raise typer.BadParameter(f"unknown case ids: {', '.join(sorted(unknown))}")
+        cases = [c for c in all_cases if c.id in case]
+        subset = "cases"
     model_id = str(settings.model_id)
     typer.echo(f"{len(cases)} cases, model {model_id}, cost cap ${max_total_cost:.2f}")
 

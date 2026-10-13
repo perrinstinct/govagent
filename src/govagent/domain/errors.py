@@ -49,3 +49,11 @@ class ModelOutputError(GovagentError):
     def __init__(self, message: str, usage: Usage) -> None:
         super().__init__(message)
         self.usage = usage
+
+
+class ApprovalError(GovagentError):
+    """Approved fixes cannot be applied as a set (unknown id, missing dependency, regression)."""
+
+    def __init__(self, message: str, proposal_id: str | None = None) -> None:
+        super().__init__(message)
+        self.proposal_id = proposal_id  # the proposal that no longer applies, when known

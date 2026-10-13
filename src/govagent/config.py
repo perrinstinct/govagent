@@ -47,6 +47,12 @@ class Settings(BaseSettings):
     # MCP server
     mcp_api_key: SecretStr | None = None
     analysis_ttl_seconds: int = Field(default=3600, ge=1)
+    mcp_rate_limit_per_minute: int = Field(default=60, ge=1)
+    # Host headers accepted by the MCP endpoint (DNS rebinding protection), e.g. the public
+    # domain in production. Comma-separated; `host:*` allows any port.
+    mcp_allowed_hosts: Annotated[list[str], NoDecode] = Field(
+        default_factory=lambda: ["localhost", "localhost:*", "127.0.0.1", "127.0.0.1:*"]
+    )
 
     # Observability
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
@@ -54,7 +60,7 @@ class Settings(BaseSettings):
     langfuse_secret_key: SecretStr | None = None
     langfuse_host: str | None = None
 
-    @field_validator("repo_allowlist", mode="before")
+    @field_validator("repo_allowlist", "mcp_allowed_hosts", mode="before")
     @classmethod
     def _split_allowlist(cls, value: object) -> object:
         """Accept a comma-separated string: `owner/a,owner/b`."""

@@ -224,6 +224,9 @@ def main(
     case: Annotated[
         list[str] | None, typer.Option(help="Run only these case ids (repeatable).")
     ] = None,
+    label: Annotated[
+        str | None, typer.Option(help="Added to the results file name (e.g. 'baseline').")
+    ] = None,
 ) -> None:
     from govagent.adapters.bedrock import BedrockFixModel
     from govagent.adapters.spectral import SpectralLinter
@@ -274,7 +277,8 @@ def main(
         typer.echo(f"stopped early ({skipped} cases not run): {reason}")
     summary = summarize(model_id, subset, evaluation.results, evaluation.skipped)
     RESULTS_DIR.mkdir(exist_ok=True)
-    stem = f"{dt.date.today().isoformat()}_{subset}_{model_slug(model_id)}"
+    tag = f"{subset}_{label}" if label else subset
+    stem = f"{dt.date.today().isoformat()}_{tag}_{model_slug(model_id)}"
     run = EvalRun(summary=summary, cases=evaluation.results)
     (RESULTS_DIR / f"{stem}.json").write_text(run.model_dump_json(indent=2) + "\n")
     (RESULTS_DIR / f"{stem}.md").write_text(render_markdown(summary))

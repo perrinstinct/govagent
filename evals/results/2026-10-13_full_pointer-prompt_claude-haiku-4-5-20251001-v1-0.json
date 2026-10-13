@@ -1,0 +1,3837 @@
+{
+  "summary": {
+    "model_id": "eu.anthropic.claude-haiku-4-5-20251001-v1:0",
+    "subset": "full",
+    "cases": 84,
+    "errors": 0,
+    "skipped": 0,
+    "sanity_rate": 1.0,
+    "injected": 152,
+    "fixed": 152,
+    "fix_rate": 1.0,
+    "regression_rate": 0.0,
+    "valid_spec_rate": 1.0,
+    "mean_attempts": 1.0328947368421053,
+    "llm_calls": 157,
+    "input_tokens": 230304,
+    "output_tokens": 26555,
+    "total_cost_usd": 0.3993869,
+    "cost_per_case_usd": 0.004754605952380952,
+    "latency_p50_ms": 2353,
+    "latency_p95_ms": 11094,
+    "per_rule": [
+      {
+        "rule_id": "gov-error-response",
+        "injected": 15,
+        "fixed": 15,
+        "fix_rate": 1.0,
+        "mean_attempts": 1.3333333333333333
+      },
+      {
+        "rule_id": "gov-operation-id",
+        "injected": 19,
+        "fixed": 19,
+        "fix_rate": 1.0,
+        "mean_attempts": 1.0
+      },
+      {
+        "rule_id": "gov-operation-id-camel",
+        "injected": 14,
+        "fixed": 14,
+        "fix_rate": 1.0,
+        "mean_attempts": 1.0
+      },
+      {
+        "rule_id": "gov-operation-summary",
+        "injected": 15,
+        "fixed": 15,
+        "fix_rate": 1.0,
+        "mean_attempts": 1.0
+      },
+      {
+        "rule_id": "gov-operation-tags",
+        "injected": 13,
+        "fixed": 13,
+        "fix_rate": 1.0,
+        "mean_attempts": 1.0
+      },
+      {
+        "rule_id": "gov-path-kebab",
+        "injected": 12,
+        "fixed": 12,
+        "fix_rate": 1.0,
+        "mean_attempts": 1.0
+      },
+      {
+        "rule_id": "gov-path-no-trailing-slash",
+        "injected": 16,
+        "fixed": 16,
+        "fix_rate": 1.0,
+        "mean_attempts": 1.0
+      },
+      {
+        "rule_id": "gov-problem-json",
+        "injected": 15,
+        "fixed": 15,
+        "fix_rate": 1.0,
+        "mean_attempts": 1.0
+      },
+      {
+        "rule_id": "gov-property-camel",
+        "injected": 16,
+        "fixed": 16,
+        "fix_rate": 1.0,
+        "mean_attempts": 1.0
+      },
+      {
+        "rule_id": "gov-servers-https",
+        "injected": 17,
+        "fixed": 17,
+        "fix_rate": 1.0,
+        "mean_attempts": 1.0
+      }
+    ]
+  },
+  "cases": [
+    {
+      "case_id": "bookshop--path-kebab",
+      "seed": "bookshop.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-path-kebab",
+          "pointer": "/paths/~1Books~1{isbn}"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-path-kebab",
+          "pointer": "/paths/~1Books~1{isbn}"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-path-kebab",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1370,
+        "output_tokens": 145,
+        "cost_usd": 0.0023045
+      },
+      "latency_ms": 3640,
+      "error": null
+    },
+    {
+      "case_id": "bookshop--path-no-trailing-slash",
+      "seed": "bookshop.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1books~1"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1books~1"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1362,
+        "output_tokens": 132,
+        "cost_usd": 0.0022242
+      },
+      "latency_ms": 2061,
+      "error": null
+    },
+    {
+      "case_id": "bookshop--servers-https",
+      "seed": "bookshop.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-servers-https",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1340,
+        "output_tokens": 141,
+        "cost_usd": 0.0022495
+      },
+      "latency_ms": 2069,
+      "error": null
+    },
+    {
+      "case_id": "bookshop--operation-id",
+      "seed": "bookshop.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1books/get"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1books/get"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-id",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1453,
+        "output_tokens": 140,
+        "cost_usd": 0.0023683000000000003
+      },
+      "latency_ms": 2266,
+      "error": null
+    },
+    {
+      "case_id": "bookshop--operation-id-camel",
+      "seed": "bookshop.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-operation-id-camel",
+          "pointer": "/paths/~1books~1{isbn}/get/operationId"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-id-camel",
+          "pointer": "/paths/~1books~1{isbn}/get/operationId"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-id-camel",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1479,
+        "output_tokens": 140,
+        "cost_usd": 0.0023969
+      },
+      "latency_ms": 1893,
+      "error": null
+    },
+    {
+      "case_id": "bookshop--operation-summary",
+      "seed": "bookshop.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1books/get"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1books/get"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-summary",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1438,
+        "output_tokens": 149,
+        "cost_usd": 0.0024013000000000003
+      },
+      "latency_ms": 2518,
+      "error": null
+    },
+    {
+      "case_id": "bookshop--operation-tags",
+      "seed": "bookshop.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-operation-tags",
+          "pointer": "/paths/~1books~1{isbn}/get"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-tags",
+          "pointer": "/paths/~1books~1{isbn}/get"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-tags",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1484,
+        "output_tokens": 141,
+        "cost_usd": 0.0024079
+      },
+      "latency_ms": 2148,
+      "error": null
+    },
+    {
+      "case_id": "bookshop--error-response",
+      "seed": "bookshop.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1shopping-carts~1{cartId}~1checkout/post/responses"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1shopping-carts~1{cartId}~1checkout/post/responses"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-error-response",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1630,
+        "output_tokens": 315,
+        "cost_usd": 0.0035255
+      },
+      "latency_ms": 3128,
+      "error": null
+    },
+    {
+      "case_id": "bookshop--problem-json",
+      "seed": "bookshop.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/paths/~1books~1{isbn}/get/responses/404/content"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/paths/~1books~1{isbn}/get/responses/404/content"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-problem-json",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1550,
+        "output_tokens": 263,
+        "cost_usd": 0.0031515
+      },
+      "latency_ms": 2716,
+      "error": null
+    },
+    {
+      "case_id": "bookshop--property-camel",
+      "seed": "bookshop.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/Order/properties/order_id"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/Order/properties/order_id"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-property-camel",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1397,
+        "output_tokens": 199,
+        "cost_usd": 0.0026311999999999998
+      },
+      "latency_ms": 2462,
+      "error": null
+    },
+    {
+      "case_id": "bookshop--multi-1",
+      "seed": "bookshop.yaml",
+      "kind": "multi",
+      "injected": [
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1books~1{isbn}/get"
+        },
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1books/get"
+        },
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/paths/~1shopping-carts~1{cartId}~1checkout/post/responses/503/content"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1books/get"
+        },
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1books~1{isbn}/get"
+        },
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/paths/~1shopping-carts~1{cartId}~1checkout/post/responses/503/content"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-summary",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-operation-id",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-problem-json",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 3,
+        "input_tokens": 4526,
+        "output_tokens": 510,
+        "cost_usd": 0.0077836
+      },
+      "latency_ms": 6638,
+      "error": null
+    },
+    {
+      "case_id": "bookshop--multi-2",
+      "seed": "bookshop.yaml",
+      "kind": "multi",
+      "injected": [
+        {
+          "rule_id": "gov-path-kebab",
+          "pointer": "/paths/~1Books"
+        },
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1shopping-carts~1{cartId}~1checkout~1"
+        },
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        },
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/paths/~1shopping-carts~1{cartId}~1checkout~1/post/responses/409/content"
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/Book/properties/author_names"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        },
+        {
+          "rule_id": "gov-path-kebab",
+          "pointer": "/paths/~1Books"
+        },
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1shopping-carts~1{cartId}~1checkout~1"
+        },
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/paths/~1shopping-carts~1{cartId}~1checkout~1/post/responses/409/content"
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/Book/properties/author_names"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-servers-https",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-path-kebab",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-problem-json",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 5,
+        "input_tokens": 7120,
+        "output_tokens": 899,
+        "cost_usd": 0.0127765
+      },
+      "latency_ms": 14075,
+      "error": null
+    },
+    {
+      "case_id": "bookshop--multi-3",
+      "seed": "bookshop.yaml",
+      "kind": "multi",
+      "injected": [
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        },
+        {
+          "rule_id": "gov-operation-tags",
+          "pointer": "/paths/~1books/get"
+        },
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1books/get/responses"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        },
+        {
+          "rule_id": "gov-operation-tags",
+          "pointer": "/paths/~1books/get"
+        },
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1books/get/responses"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-servers-https",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-operation-tags",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-error-response",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 3,
+        "input_tokens": 4333,
+        "output_tokens": 494,
+        "cost_usd": 0.007483300000000001
+      },
+      "latency_ms": 6315,
+      "error": null
+    },
+    {
+      "case_id": "bookshop--multi-4",
+      "seed": "bookshop.yaml",
+      "kind": "multi",
+      "injected": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1books~1"
+        },
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        },
+        {
+          "rule_id": "gov-operation-id-camel",
+          "pointer": "/paths/~1books~1{isbn}/get/operationId"
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/Problem/properties/Status"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        },
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1books~1"
+        },
+        {
+          "rule_id": "gov-operation-id-camel",
+          "pointer": "/paths/~1books~1{isbn}/get/operationId"
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/Problem/properties/Status"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-servers-https",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-operation-id-camel",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 4,
+        "input_tokens": 5555,
+        "output_tokens": 563,
+        "cost_usd": 0.009207000000000002
+      },
+      "latency_ms": 15395,
+      "error": null
+    },
+    {
+      "case_id": "events-tickets--path-kebab",
+      "seed": "events-tickets.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-path-kebab",
+          "pointer": "/paths/~1events~1{eventId}~1seatHolds"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-path-kebab",
+          "pointer": "/paths/~1events~1{eventId}~1seatHolds"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-path-kebab",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1397,
+        "output_tokens": 179,
+        "cost_usd": 0.0025212
+      },
+      "latency_ms": 2135,
+      "error": null
+    },
+    {
+      "case_id": "events-tickets--path-no-trailing-slash",
+      "seed": "events-tickets.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1venues~1{venueId}~1"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1venues~1{venueId}~1"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1386,
+        "output_tokens": 157,
+        "cost_usd": 0.0023881
+      },
+      "latency_ms": 2181,
+      "error": null
+    },
+    {
+      "case_id": "events-tickets--servers-https",
+      "seed": "events-tickets.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-servers-https",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1342,
+        "output_tokens": 140,
+        "cost_usd": 0.0022462
+      },
+      "latency_ms": 2105,
+      "error": null
+    },
+    {
+      "case_id": "events-tickets--operation-id",
+      "seed": "events-tickets.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1events~1{eventId}~1seat-holds/post"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1events~1{eventId}~1seat-holds/post"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-id",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1509,
+        "output_tokens": 161,
+        "cost_usd": 0.0025454
+      },
+      "latency_ms": 2345,
+      "error": null
+    },
+    {
+      "case_id": "events-tickets--operation-id-camel",
+      "seed": "events-tickets.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-operation-id-camel",
+          "pointer": "/paths/~1tickets~1{ticketId}/get/operationId"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-id-camel",
+          "pointer": "/paths/~1tickets~1{ticketId}/get/operationId"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-id-camel",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1481,
+        "output_tokens": 144,
+        "cost_usd": 0.0024211000000000002
+      },
+      "latency_ms": 2018,
+      "error": null
+    },
+    {
+      "case_id": "events-tickets--operation-summary",
+      "seed": "events-tickets.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1tickets~1{ticketId}/get"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1tickets~1{ticketId}/get"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-summary",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1453,
+        "output_tokens": 147,
+        "cost_usd": 0.0024068
+      },
+      "latency_ms": 2365,
+      "error": null
+    },
+    {
+      "case_id": "events-tickets--operation-tags",
+      "seed": "events-tickets.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-operation-tags",
+          "pointer": "/paths/~1events/get"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-tags",
+          "pointer": "/paths/~1events/get"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-tags",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1471,
+        "output_tokens": 137,
+        "cost_usd": 0.0023716
+      },
+      "latency_ms": 2247,
+      "error": null
+    },
+    {
+      "case_id": "events-tickets--error-response",
+      "seed": "events-tickets.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1events/get/responses"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1events/get/responses"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-error-response",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1637,
+        "output_tokens": 162,
+        "cost_usd": 0.0026917
+      },
+      "latency_ms": 2472,
+      "error": null
+    },
+    {
+      "case_id": "events-tickets--problem-json",
+      "seed": "events-tickets.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/paths/~1tickets~1{ticketId}/delete/responses/502/content"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/paths/~1tickets~1{ticketId}/delete/responses/502/content"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-problem-json",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1615,
+        "output_tokens": 206,
+        "cost_usd": 0.0029095
+      },
+      "latency_ms": 2567,
+      "error": null
+    },
+    {
+      "case_id": "events-tickets--property-camel",
+      "seed": "events-tickets.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/SeatHold/properties/expires_at"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/SeatHold/properties/expires_at"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-property-camel",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1402,
+        "output_tokens": 212,
+        "cost_usd": 0.0027082
+      },
+      "latency_ms": 2418,
+      "error": null
+    },
+    {
+      "case_id": "events-tickets--multi-1",
+      "seed": "events-tickets.yaml",
+      "kind": "multi",
+      "injected": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1events~1{eventId}~1seat-holds~1"
+        },
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1events/get"
+        },
+        {
+          "rule_id": "gov-operation-tags",
+          "pointer": "/paths/~1venues~1{venueId}/get"
+        },
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/paths/~1tickets~1{ticketId}/delete/responses/502/content"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1events/get"
+        },
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1events~1{eventId}~1seat-holds~1"
+        },
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/paths/~1tickets~1{ticketId}/delete/responses/502/content"
+        },
+        {
+          "rule_id": "gov-operation-tags",
+          "pointer": "/paths/~1venues~1{venueId}/get"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-id",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-problem-json",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-operation-tags",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 4,
+        "input_tokens": 5947,
+        "output_tokens": 667,
+        "cost_usd": 0.0102102
+      },
+      "latency_ms": 8815,
+      "error": null
+    },
+    {
+      "case_id": "events-tickets--multi-2",
+      "seed": "events-tickets.yaml",
+      "kind": "multi",
+      "injected": [
+        {
+          "rule_id": "gov-path-kebab",
+          "pointer": "/paths/~1Venues~1{venueId}"
+        },
+        {
+          "rule_id": "gov-operation-id-camel",
+          "pointer": "/paths/~1tickets~1{ticketId}/delete/operationId"
+        },
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1Venues~1{venueId}/get"
+        },
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/paths/~1tickets~1{ticketId}/delete/responses/502/content"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-id-camel",
+          "pointer": "/paths/~1tickets~1{ticketId}/delete/operationId"
+        },
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/paths/~1tickets~1{ticketId}/delete/responses/502/content"
+        },
+        {
+          "rule_id": "gov-path-kebab",
+          "pointer": "/paths/~1Venues~1{venueId}"
+        },
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1Venues~1{venueId}/get"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-id-camel",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-problem-json",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-path-kebab",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-operation-summary",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 4,
+        "input_tokens": 5959,
+        "output_tokens": 662,
+        "cost_usd": 0.0101959
+      },
+      "latency_ms": 10233,
+      "error": null
+    },
+    {
+      "case_id": "events-tickets--multi-3",
+      "seed": "events-tickets.yaml",
+      "kind": "multi",
+      "injected": [
+        {
+          "rule_id": "gov-path-kebab",
+          "pointer": "/paths/~1events~1{eventId}~1seatHolds"
+        },
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1events~1"
+        },
+        {
+          "rule_id": "gov-operation-id-camel",
+          "pointer": "/paths/~1events~1/get/operationId"
+        },
+        {
+          "rule_id": "gov-operation-tags",
+          "pointer": "/paths/~1tickets~1{ticketId}/delete"
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/Problem/properties/Title"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1events~1"
+        },
+        {
+          "rule_id": "gov-operation-id-camel",
+          "pointer": "/paths/~1events~1/get/operationId"
+        },
+        {
+          "rule_id": "gov-path-kebab",
+          "pointer": "/paths/~1events~1{eventId}~1seatHolds"
+        },
+        {
+          "rule_id": "gov-operation-tags",
+          "pointer": "/paths/~1tickets~1{ticketId}/delete"
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/Problem/properties/Title"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-operation-id-camel",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-path-kebab",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-operation-tags",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 5,
+        "input_tokens": 7122,
+        "output_tokens": 761,
+        "cost_usd": 0.0120197
+      },
+      "latency_ms": 11015,
+      "error": null
+    },
+    {
+      "case_id": "events-tickets--multi-4",
+      "seed": "events-tickets.yaml",
+      "kind": "multi",
+      "injected": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1events~1{eventId}~1seat-holds~1"
+        },
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        },
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1tickets~1{ticketId}/delete/responses"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        },
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1events~1{eventId}~1seat-holds~1"
+        },
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1tickets~1{ticketId}/delete/responses"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-servers-https",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-error-response",
+          "status": "resolved",
+          "attempts": 2
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 4,
+        "input_tokens": 6272,
+        "output_tokens": 549,
+        "cost_usd": 0.0099187
+      },
+      "latency_ms": 7573,
+      "error": null
+    },
+    {
+      "case_id": "hr-employees--path-kebab",
+      "seed": "hr-employees.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-path-kebab",
+          "pointer": "/paths/~1Employees~1{employeeId}"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-path-kebab",
+          "pointer": "/paths/~1Employees~1{employeeId}"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-path-kebab",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1373,
+        "output_tokens": 159,
+        "cost_usd": 0.0023848000000000003
+      },
+      "latency_ms": 2301,
+      "error": null
+    },
+    {
+      "case_id": "hr-employees--path-no-trailing-slash",
+      "seed": "hr-employees.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1employees~1"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1employees~1"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1358,
+        "output_tokens": 150,
+        "cost_usd": 0.0023188
+      },
+      "latency_ms": 2129,
+      "error": null
+    },
+    {
+      "case_id": "hr-employees--servers-https",
+      "seed": "hr-employees.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-servers-https",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1342,
+        "output_tokens": 129,
+        "cost_usd": 0.0021856999999999996
+      },
+      "latency_ms": 2037,
+      "error": null
+    },
+    {
+      "case_id": "hr-employees--operation-id",
+      "seed": "hr-employees.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1employees~1{employeeId}/get"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1employees~1{employeeId}/get"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-id",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1458,
+        "output_tokens": 158,
+        "cost_usd": 0.0024728000000000003
+      },
+      "latency_ms": 2384,
+      "error": null
+    },
+    {
+      "case_id": "hr-employees--operation-id-camel",
+      "seed": "hr-employees.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-operation-id-camel",
+          "pointer": "/paths/~1leave-requests/post/operationId"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-id-camel",
+          "pointer": "/paths/~1leave-requests/post/operationId"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-id-camel",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1487,
+        "output_tokens": 146,
+        "cost_usd": 0.0024387
+      },
+      "latency_ms": 2154,
+      "error": null
+    },
+    {
+      "case_id": "hr-employees--operation-summary",
+      "seed": "hr-employees.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1employees~1{employeeId}/get"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1employees~1{employeeId}/get"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-summary",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1442,
+        "output_tokens": 159,
+        "cost_usd": 0.0024606999999999997
+      },
+      "latency_ms": 2353,
+      "error": null
+    },
+    {
+      "case_id": "hr-employees--operation-tags",
+      "seed": "hr-employees.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-operation-tags",
+          "pointer": "/paths/~1employees~1{employeeId}/get"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-tags",
+          "pointer": "/paths/~1employees~1{employeeId}/get"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-tags",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1476,
+        "output_tokens": 148,
+        "cost_usd": 0.0024376000000000003
+      },
+      "latency_ms": 2387,
+      "error": null
+    },
+    {
+      "case_id": "hr-employees--error-response",
+      "seed": "hr-employees.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1employees~1{employeeId}/patch/responses"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1employees~1{employeeId}/patch/responses"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-error-response",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1650,
+        "output_tokens": 285,
+        "cost_usd": 0.0033825
+      },
+      "latency_ms": 3043,
+      "error": null
+    },
+    {
+      "case_id": "hr-employees--problem-json",
+      "seed": "hr-employees.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/paths/~1leave-requests/post/responses/422/content"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/paths/~1leave-requests/post/responses/422/content"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-problem-json",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1600,
+        "output_tokens": 248,
+        "cost_usd": 0.003124
+      },
+      "latency_ms": 2707,
+      "error": null
+    },
+    {
+      "case_id": "hr-employees--property-camel",
+      "seed": "hr-employees.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/LeaveRequest/properties/start_date"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/LeaveRequest/properties/start_date"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-property-camel",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1430,
+        "output_tokens": 201,
+        "cost_usd": 0.0026785
+      },
+      "latency_ms": 2287,
+      "error": null
+    },
+    {
+      "case_id": "hr-employees--multi-1",
+      "seed": "hr-employees.yaml",
+      "kind": "multi",
+      "injected": [
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        },
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1employees~1{employeeId}/get"
+        },
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1employees/get"
+        },
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1leave-requests/post/responses"
+        },
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/components/responses/Forbidden/content"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        },
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1employees/get"
+        },
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1employees~1{employeeId}/get"
+        },
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1leave-requests/post/responses"
+        },
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/components/responses/Forbidden/content"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-servers-https",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-operation-summary",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-operation-id",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-error-response",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-problem-json",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 5,
+        "input_tokens": 7363,
+        "output_tokens": 880,
+        "cost_usd": 0.012939299999999999
+      },
+      "latency_ms": 11094,
+      "error": null
+    },
+    {
+      "case_id": "hr-employees--multi-2",
+      "seed": "hr-employees.yaml",
+      "kind": "multi",
+      "injected": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1employees~1"
+        },
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1employees~1{employeeId}/patch"
+        },
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1employees~1/get"
+        },
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/paths/~1leave-requests/post/responses/422/content"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1employees~1"
+        },
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1employees~1/get"
+        },
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1employees~1{employeeId}/patch"
+        },
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/paths/~1leave-requests/post/responses/422/content"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-operation-summary",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-operation-id",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-problem-json",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 4,
+        "input_tokens": 5894,
+        "output_tokens": 686,
+        "cost_usd": 0.0102564
+      },
+      "latency_ms": 8688,
+      "error": null
+    },
+    {
+      "case_id": "hr-employees--multi-3",
+      "seed": "hr-employees.yaml",
+      "kind": "multi",
+      "injected": [
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        },
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1leave-requests/post"
+        },
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1employees/get"
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/LeaveRequest/properties/start_date"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        },
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1employees/get"
+        },
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1leave-requests/post"
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/LeaveRequest/properties/start_date"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-servers-https",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-operation-summary",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-operation-id",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 4,
+        "input_tokens": 5672,
+        "output_tokens": 629,
+        "cost_usd": 0.0096987
+      },
+      "latency_ms": 8286,
+      "error": null
+    },
+    {
+      "case_id": "hr-employees--multi-4",
+      "seed": "hr-employees.yaml",
+      "kind": "multi",
+      "injected": [
+        {
+          "rule_id": "gov-path-kebab",
+          "pointer": "/paths/~1Employees~1{employeeId}"
+        },
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        },
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1employees/get"
+        },
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1leave-requests/post/responses"
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/EmployeeUpdate/properties/phone_number"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        },
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1employees/get"
+        },
+        {
+          "rule_id": "gov-path-kebab",
+          "pointer": "/paths/~1Employees~1{employeeId}"
+        },
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1leave-requests/post/responses"
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/EmployeeUpdate/properties/phone_number"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-servers-https",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-operation-summary",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-path-kebab",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-error-response",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 5,
+        "input_tokens": 7149,
+        "output_tokens": 875,
+        "cost_usd": 0.0126764
+      },
+      "latency_ms": 10559,
+      "error": null
+    },
+    {
+      "case_id": "iot-devices--path-kebab",
+      "seed": "iot-devices.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-path-kebab",
+          "pointer": "/paths/~1devices~1{deviceId}~1telemetryReadings"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-path-kebab",
+          "pointer": "/paths/~1devices~1{deviceId}~1telemetryReadings"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-path-kebab",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1378,
+        "output_tokens": 201,
+        "cost_usd": 0.0026213
+      },
+      "latency_ms": 2358,
+      "error": null
+    },
+    {
+      "case_id": "iot-devices--path-no-trailing-slash",
+      "seed": "iot-devices.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1devices~1"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1devices~1"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1354,
+        "output_tokens": 149,
+        "cost_usd": 0.0023089
+      },
+      "latency_ms": 2177,
+      "error": null
+    },
+    {
+      "case_id": "iot-devices--servers-https",
+      "seed": "iot-devices.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-servers-https",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1363,
+        "output_tokens": 143,
+        "cost_usd": 0.0022858
+      },
+      "latency_ms": 1933,
+      "error": null
+    },
+    {
+      "case_id": "iot-devices--operation-id",
+      "seed": "iot-devices.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1devices/post"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1devices/post"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-id",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1463,
+        "output_tokens": 134,
+        "cost_usd": 0.0023463000000000004
+      },
+      "latency_ms": 2005,
+      "error": null
+    },
+    {
+      "case_id": "iot-devices--operation-id-camel",
+      "seed": "iot-devices.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-operation-id-camel",
+          "pointer": "/paths/~1devices/post/operationId"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-id-camel",
+          "pointer": "/paths/~1devices/post/operationId"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-id-camel",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1476,
+        "output_tokens": 136,
+        "cost_usd": 0.0023716
+      },
+      "latency_ms": 1846,
+      "error": null
+    },
+    {
+      "case_id": "iot-devices--operation-summary",
+      "seed": "iot-devices.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1devices/post"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1devices/post"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-summary",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1447,
+        "output_tokens": 135,
+        "cost_usd": 0.0023342
+      },
+      "latency_ms": 2086,
+      "error": null
+    },
+    {
+      "case_id": "iot-devices--operation-tags",
+      "seed": "iot-devices.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-operation-tags",
+          "pointer": "/paths/~1devices/get"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-tags",
+          "pointer": "/paths/~1devices/get"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-tags",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1453,
+        "output_tokens": 138,
+        "cost_usd": 0.0023573
+      },
+      "latency_ms": 2034,
+      "error": null
+    },
+    {
+      "case_id": "iot-devices--error-response",
+      "seed": "iot-devices.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1devices/get/responses"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1devices/get/responses"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-error-response",
+          "status": "resolved",
+          "attempts": 2
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 2,
+        "input_tokens": 3233,
+        "output_tokens": 602,
+        "cost_usd": 0.0068673
+      },
+      "latency_ms": 5230,
+      "error": null
+    },
+    {
+      "case_id": "iot-devices--problem-json",
+      "seed": "iot-devices.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/paths/~1devices~1{deviceId}~1telemetry-readings/get/responses/404/content"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/paths/~1devices~1{deviceId}~1telemetry-readings/get/responses/404/content"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-problem-json",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1656,
+        "output_tokens": 303,
+        "cost_usd": 0.0034881000000000005
+      },
+      "latency_ms": 2841,
+      "error": null
+    },
+    {
+      "case_id": "iot-devices--property-camel",
+      "seed": "iot-devices.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/TelemetryReading/properties/temperature_celsius"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/TelemetryReading/properties/temperature_celsius"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-property-camel",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1427,
+        "output_tokens": 184,
+        "cost_usd": 0.0025816999999999997
+      },
+      "latency_ms": 2203,
+      "error": null
+    },
+    {
+      "case_id": "iot-devices--multi-1",
+      "seed": "iot-devices.yaml",
+      "kind": "multi",
+      "injected": [
+        {
+          "rule_id": "gov-path-kebab",
+          "pointer": "/paths/~1devices~1{deviceId}~1telemetryReadings"
+        },
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        },
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1devices/get"
+        },
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1devices/get"
+        },
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1devices~1{deviceId}~1telemetryReadings/get/responses"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        },
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1devices/get"
+        },
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1devices/get"
+        },
+        {
+          "rule_id": "gov-path-kebab",
+          "pointer": "/paths/~1devices~1{deviceId}~1telemetryReadings"
+        },
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1devices~1{deviceId}~1telemetryReadings/get/responses"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-servers-https",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-operation-id",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-operation-summary",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-path-kebab",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-error-response",
+          "status": "resolved",
+          "attempts": 2
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 6,
+        "input_tokens": 9112,
+        "output_tokens": 1245,
+        "cost_usd": 0.016870700000000002
+      },
+      "latency_ms": 12328,
+      "error": null
+    },
+    {
+      "case_id": "iot-devices--multi-2",
+      "seed": "iot-devices.yaml",
+      "kind": "multi",
+      "injected": [
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1devices~1{deviceId}~1telemetry-readings/get"
+        },
+        {
+          "rule_id": "gov-operation-tags",
+          "pointer": "/paths/~1devices~1{deviceId}~1telemetry-readings/get"
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/Device/properties/last_seen_at"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1devices~1{deviceId}~1telemetry-readings/get"
+        },
+        {
+          "rule_id": "gov-operation-tags",
+          "pointer": "/paths/~1devices~1{deviceId}~1telemetry-readings/get"
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/Device/properties/last_seen_at"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-id",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-operation-tags",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 3,
+        "input_tokens": 4552,
+        "output_tokens": 495,
+        "cost_usd": 0.0077297
+      },
+      "latency_ms": 6283,
+      "error": null
+    },
+    {
+      "case_id": "iot-devices--multi-3",
+      "seed": "iot-devices.yaml",
+      "kind": "multi",
+      "injected": [
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        },
+        {
+          "rule_id": "gov-operation-id-camel",
+          "pointer": "/paths/~1devices/get/operationId"
+        },
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1devices~1{deviceId}~1telemetry-readings/get"
+        },
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1devices/get/responses"
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/Device/properties/last_seen_at"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        },
+        {
+          "rule_id": "gov-operation-id-camel",
+          "pointer": "/paths/~1devices/get/operationId"
+        },
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1devices/get/responses"
+        },
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1devices~1{deviceId}~1telemetry-readings/get"
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/Device/properties/last_seen_at"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-servers-https",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-operation-id-camel",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-error-response",
+          "status": "resolved",
+          "attempts": 2
+        },
+        {
+          "rule_id": "gov-operation-summary",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 6,
+        "input_tokens": 8972,
+        "output_tokens": 1223,
+        "cost_usd": 0.016595699999999998
+      },
+      "latency_ms": 12819,
+      "error": null
+    },
+    {
+      "case_id": "iot-devices--multi-4",
+      "seed": "iot-devices.yaml",
+      "kind": "multi",
+      "injected": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1devices~1{deviceId}~1telemetry-readings~1"
+        },
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1devices/get"
+        },
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/paths/~1devices~1{deviceId}~1telemetry-readings~1/get/responses/404/content"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1devices/get"
+        },
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1devices~1{deviceId}~1telemetry-readings~1"
+        },
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/paths/~1devices~1{deviceId}~1telemetry-readings~1/get/responses/404/content"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-id",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-problem-json",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 3,
+        "input_tokens": 4464,
+        "output_tokens": 653,
+        "cost_usd": 0.008501900000000001
+      },
+      "latency_ms": 6803,
+      "error": null
+    },
+    {
+      "case_id": "payments--path-kebab",
+      "seed": "payments.json",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-path-kebab",
+          "pointer": "/paths/~1Payments~1{paymentId}~1refunds"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-path-kebab",
+          "pointer": "/paths/~1Payments~1{paymentId}~1refunds"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-path-kebab",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1386,
+        "output_tokens": 174,
+        "cost_usd": 0.0024816000000000005
+      },
+      "latency_ms": 2304,
+      "error": null
+    },
+    {
+      "case_id": "payments--path-no-trailing-slash",
+      "seed": "payments.json",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1payments~1{paymentId}~1refunds~1"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1payments~1{paymentId}~1refunds~1"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1381,
+        "output_tokens": 168,
+        "cost_usd": 0.0024431000000000006
+      },
+      "latency_ms": 2101,
+      "error": null
+    },
+    {
+      "case_id": "payments--servers-https",
+      "seed": "payments.json",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-servers-https",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1342,
+        "output_tokens": 140,
+        "cost_usd": 0.0022462
+      },
+      "latency_ms": 1950,
+      "error": null
+    },
+    {
+      "case_id": "payments--operation-id",
+      "seed": "payments.json",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1payments~1{paymentId}/get"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1payments~1{paymentId}/get"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-id",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1464,
+        "output_tokens": 157,
+        "cost_usd": 0.0024739000000000002
+      },
+      "latency_ms": 2134,
+      "error": null
+    },
+    {
+      "case_id": "payments--operation-id-camel",
+      "seed": "payments.json",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-operation-id-camel",
+          "pointer": "/paths/~1payments~1{paymentId}~1refunds/post/operationId"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-id-camel",
+          "pointer": "/paths/~1payments~1{paymentId}~1refunds/post/operationId"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-id-camel",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1552,
+        "output_tokens": 152,
+        "cost_usd": 0.0025432
+      },
+      "latency_ms": 1845,
+      "error": null
+    },
+    {
+      "case_id": "payments--operation-summary",
+      "seed": "payments.json",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1payments~1{paymentId}~1refunds/post"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1payments~1{paymentId}~1refunds/post"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-summary",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1521,
+        "output_tokens": 152,
+        "cost_usd": 0.0025091000000000002
+      },
+      "latency_ms": 2185,
+      "error": null
+    },
+    {
+      "case_id": "payments--operation-tags",
+      "seed": "payments.json",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-operation-tags",
+          "pointer": "/paths/~1payments~1{paymentId}/get"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-tags",
+          "pointer": "/paths/~1payments~1{paymentId}/get"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-tags",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1484,
+        "output_tokens": 138,
+        "cost_usd": 0.0023914
+      },
+      "latency_ms": 2002,
+      "error": null
+    },
+    {
+      "case_id": "payments--error-response",
+      "seed": "payments.json",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1payments/post/responses"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1payments/post/responses"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-error-response",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1637,
+        "output_tokens": 154,
+        "cost_usd": 0.0026477
+      },
+      "latency_ms": 2268,
+      "error": null
+    },
+    {
+      "case_id": "payments--problem-json",
+      "seed": "payments.json",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/components/responses/NotFound/content"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/components/responses/NotFound/content"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-problem-json",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1495,
+        "output_tokens": 183,
+        "cost_usd": 0.002651
+      },
+      "latency_ms": 2392,
+      "error": null
+    },
+    {
+      "case_id": "payments--property-camel",
+      "seed": "payments.json",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/Refund/properties/refund_id"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/Refund/properties/refund_id"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-property-camel",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1393,
+        "output_tokens": 207,
+        "cost_usd": 0.0026708
+      },
+      "latency_ms": 2281,
+      "error": null
+    },
+    {
+      "case_id": "payments--multi-1",
+      "seed": "payments.json",
+      "kind": "multi",
+      "injected": [
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        },
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1payments/post"
+        },
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1payments/post"
+        },
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/components/responses/NotFound/content"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        },
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1payments/post"
+        },
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1payments/post"
+        },
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/components/responses/NotFound/content"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-servers-https",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-operation-id",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-operation-summary",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-problem-json",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 4,
+        "input_tokens": 5714,
+        "output_tokens": 603,
+        "cost_usd": 0.0096019
+      },
+      "latency_ms": 8014,
+      "error": null
+    },
+    {
+      "case_id": "payments--multi-2",
+      "seed": "payments.json",
+      "kind": "multi",
+      "injected": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1payments~1{paymentId}~1refunds~1"
+        },
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1payments/post"
+        },
+        {
+          "rule_id": "gov-operation-tags",
+          "pointer": "/paths/~1payments~1{paymentId}/get"
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/PaymentRequest/properties/card_token"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1payments/post"
+        },
+        {
+          "rule_id": "gov-operation-tags",
+          "pointer": "/paths/~1payments~1{paymentId}/get"
+        },
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1payments~1{paymentId}~1refunds~1"
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/PaymentRequest/properties/card_token"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-id",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-operation-tags",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 4,
+        "input_tokens": 5727,
+        "output_tokens": 648,
+        "cost_usd": 0.009863700000000001
+      },
+      "latency_ms": 7843,
+      "error": null
+    },
+    {
+      "case_id": "payments--multi-3",
+      "seed": "payments.json",
+      "kind": "multi",
+      "injected": [
+        {
+          "rule_id": "gov-path-kebab",
+          "pointer": "/paths/~1Payments"
+        },
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1Payments/post/responses"
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/PaymentRequest/properties/amount_cents"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-path-kebab",
+          "pointer": "/paths/~1Payments"
+        },
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1Payments/post/responses"
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/PaymentRequest/properties/amount_cents"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-path-kebab",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-error-response",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 3,
+        "input_tokens": 4414,
+        "output_tokens": 491,
+        "cost_usd": 0.007555899999999999
+      },
+      "latency_ms": 9016,
+      "error": null
+    },
+    {
+      "case_id": "payments--multi-4",
+      "seed": "payments.json",
+      "kind": "multi",
+      "injected": [
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1payments~1{paymentId}~1refunds/post"
+        },
+        {
+          "rule_id": "gov-operation-id-camel",
+          "pointer": "/paths/~1payments~1{paymentId}/get/operationId"
+        },
+        {
+          "rule_id": "gov-operation-tags",
+          "pointer": "/paths/~1payments/post"
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/Refund/properties/refund_id"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-tags",
+          "pointer": "/paths/~1payments/post"
+        },
+        {
+          "rule_id": "gov-operation-id-camel",
+          "pointer": "/paths/~1payments~1{paymentId}/get/operationId"
+        },
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1payments~1{paymentId}~1refunds/post"
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/Refund/properties/refund_id"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-tags",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-operation-id-camel",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-operation-id",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-property-camel",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 4,
+        "input_tokens": 5876,
+        "output_tokens": 642,
+        "cost_usd": 0.0099946
+      },
+      "latency_ms": 7486,
+      "error": null
+    },
+    {
+      "case_id": "petstore--path-kebab",
+      "seed": "petstore.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-path-kebab",
+          "pointer": "/paths/~1Pets~1{petId}"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-path-kebab",
+          "pointer": "/paths/~1Pets~1{petId}"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-path-kebab",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1376,
+        "output_tokens": 154,
+        "cost_usd": 0.0023606000000000005
+      },
+      "latency_ms": 1996,
+      "error": null
+    },
+    {
+      "case_id": "petstore--path-no-trailing-slash",
+      "seed": "petstore.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1pet-owners~1{ownerId}~1pets~1"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1pet-owners~1{ownerId}~1pets~1"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1383,
+        "output_tokens": 177,
+        "cost_usd": 0.0024948
+      },
+      "latency_ms": 2149,
+      "error": null
+    },
+    {
+      "case_id": "petstore--servers-https",
+      "seed": "petstore.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/1/url"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/1/url"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-servers-https",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1373,
+        "output_tokens": 136,
+        "cost_usd": 0.0022583
+      },
+      "latency_ms": 2097,
+      "error": null
+    },
+    {
+      "case_id": "petstore--operation-id",
+      "seed": "petstore.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1pets/post"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1pets/post"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-id",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1452,
+        "output_tokens": 140,
+        "cost_usd": 0.0023672
+      },
+      "latency_ms": 2233,
+      "error": null
+    },
+    {
+      "case_id": "petstore--operation-id-camel",
+      "seed": "petstore.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-operation-id-camel",
+          "pointer": "/paths/~1pet-owners~1{ownerId}~1pets/get/operationId"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-id-camel",
+          "pointer": "/paths/~1pet-owners~1{ownerId}~1pets/get/operationId"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-id-camel",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1513,
+        "output_tokens": 156,
+        "cost_usd": 0.0025223000000000003
+      },
+      "latency_ms": 2047,
+      "error": null
+    },
+    {
+      "case_id": "petstore--operation-summary",
+      "seed": "petstore.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1pets/post"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-summary",
+          "pointer": "/paths/~1pets/post"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-summary",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1437,
+        "output_tokens": 153,
+        "cost_usd": 0.0024222
+      },
+      "latency_ms": 2223,
+      "error": null
+    },
+    {
+      "case_id": "petstore--operation-tags",
+      "seed": "petstore.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-operation-tags",
+          "pointer": "/paths/~1pet-owners~1{ownerId}~1pets/get"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-tags",
+          "pointer": "/paths/~1pet-owners~1{ownerId}~1pets/get"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-tags",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1517,
+        "output_tokens": 151,
+        "cost_usd": 0.0024992
+      },
+      "latency_ms": 2014,
+      "error": null
+    },
+    {
+      "case_id": "petstore--error-response",
+      "seed": "petstore.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1pets~1{petId}/delete/responses"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1pets~1{petId}/delete/responses"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-error-response",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1567,
+        "output_tokens": 162,
+        "cost_usd": 0.0026146999999999998
+      },
+      "latency_ms": 2307,
+      "error": null
+    },
+    {
+      "case_id": "petstore--problem-json",
+      "seed": "petstore.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/components/responses/BadRequest/content"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/components/responses/BadRequest/content"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-problem-json",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1495,
+        "output_tokens": 171,
+        "cost_usd": 0.002585
+      },
+      "latency_ms": 3049,
+      "error": null
+    },
+    {
+      "case_id": "petstore--property-camel",
+      "seed": "petstore.yaml",
+      "kind": "single",
+      "injected": [
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/Pet/properties/pet_id"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-property-camel",
+          "pointer": "/components/schemas/Pet/properties/pet_id"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-property-camel",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 1,
+        "input_tokens": 1422,
+        "output_tokens": 192,
+        "cost_usd": 0.0026201999999999996
+      },
+      "latency_ms": 2176,
+      "error": null
+    },
+    {
+      "case_id": "petstore--multi-1",
+      "seed": "petstore.yaml",
+      "kind": "multi",
+      "injected": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1pets~1{petId}~1"
+        },
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1pet-owners~1{ownerId}~1pets/get"
+        },
+        {
+          "rule_id": "gov-operation-id-camel",
+          "pointer": "/paths/~1pets/post/operationId"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-id-camel",
+          "pointer": "/paths/~1pets/post/operationId"
+        },
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1pets~1{petId}~1"
+        },
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1pet-owners~1{ownerId}~1pets/get"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-id-camel",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-operation-id",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 3,
+        "input_tokens": 4334,
+        "output_tokens": 453,
+        "cost_usd": 0.0072589
+      },
+      "latency_ms": 6440,
+      "error": null
+    },
+    {
+      "case_id": "petstore--multi-2",
+      "seed": "petstore.yaml",
+      "kind": "multi",
+      "injected": [
+        {
+          "rule_id": "gov-operation-id-camel",
+          "pointer": "/paths/~1pets/get/operationId"
+        },
+        {
+          "rule_id": "gov-operation-tags",
+          "pointer": "/paths/~1pets/get"
+        },
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1pets~1{petId}/delete/responses"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-operation-tags",
+          "pointer": "/paths/~1pets/get"
+        },
+        {
+          "rule_id": "gov-operation-id-camel",
+          "pointer": "/paths/~1pets/get/operationId"
+        },
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1pets~1{petId}/delete/responses"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-operation-tags",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-operation-id-camel",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-error-response",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 3,
+        "input_tokens": 4479,
+        "output_tokens": 442,
+        "cost_usd": 0.0073579000000000006
+      },
+      "latency_ms": 5789,
+      "error": null
+    },
+    {
+      "case_id": "petstore--multi-3",
+      "seed": "petstore.yaml",
+      "kind": "multi",
+      "injected": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1pets~1"
+        },
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1pets~1/post"
+        },
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/components/responses/NotFound/content"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "pointer": "/paths/~1pets~1"
+        },
+        {
+          "rule_id": "gov-operation-id",
+          "pointer": "/paths/~1pets~1/post"
+        },
+        {
+          "rule_id": "gov-problem-json",
+          "pointer": "/components/responses/NotFound/content"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-path-no-trailing-slash",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-operation-id",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-problem-json",
+          "status": "resolved",
+          "attempts": 1
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 3,
+        "input_tokens": 4311,
+        "output_tokens": 456,
+        "cost_usd": 0.007250100000000001
+      },
+      "latency_ms": 5973,
+      "error": null
+    },
+    {
+      "case_id": "petstore--multi-4",
+      "seed": "petstore.yaml",
+      "kind": "multi",
+      "injected": [
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        },
+        {
+          "rule_id": "gov-operation-id-camel",
+          "pointer": "/paths/~1pets/post/operationId"
+        },
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1pets/post/responses"
+        }
+      ],
+      "initial": [
+        {
+          "rule_id": "gov-servers-https",
+          "pointer": "/servers/0/url"
+        },
+        {
+          "rule_id": "gov-operation-id-camel",
+          "pointer": "/paths/~1pets/post/operationId"
+        },
+        {
+          "rule_id": "gov-error-response",
+          "pointer": "/paths/~1pets/post/responses"
+        }
+      ],
+      "final": [],
+      "outcomes": [
+        {
+          "rule_id": "gov-servers-https",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-operation-id-camel",
+          "status": "resolved",
+          "attempts": 1
+        },
+        {
+          "rule_id": "gov-error-response",
+          "status": "resolved",
+          "attempts": 2
+        }
+      ],
+      "final_valid": true,
+      "usage": {
+        "llm_calls": 4,
+        "input_tokens": 6185,
+        "output_tokens": 494,
+        "cost_usd": 0.009520500000000001
+      },
+      "latency_ms": 6760,
+      "error": null
+    }
+  ]
+}

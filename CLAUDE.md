@@ -17,7 +17,7 @@ Full spec: `docs/SPEC.md`. Read the relevant section before starting a milestone
 6. **Budgets are enforced in code**: max attempts per group, max LLM calls per run, max cost per run.
 
 ## Stack
-Python 3.12 · uv · Pydantic v2 + pydantic-settings · LangGraph · langchain-aws (Bedrock Converse) · Spectral CLI (Node, subprocess) · ruamel.yaml · official `mcp` Python SDK (FastMCP) · Typer · httpx (GitHub REST) · structlog · pytest · ruff · pyright · Terraform.
+Python 3.12 · uv · Pydantic v2 + pydantic-settings · LangGraph · langchain-aws (Bedrock Converse) · Spectral CLI (Node, subprocess) · ruamel.yaml · official `mcp` Python SDK (FastMCP) · Typer · httpx2 (GitHub REST; the HTTP client the mcp SDK already uses) · structlog · pytest · ruff · pyright · Terraform.
 
 ## Layout & dependency direction
 ```

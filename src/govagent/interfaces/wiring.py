@@ -1,12 +1,14 @@
 """Composition root shared by the CLI and the MCP server: Settings -> concrete dependencies."""
 
 from govagent.adapters.bedrock import BedrockFixModel
+from govagent.adapters.github import GitHubClient
 from govagent.adapters.spectral import SpectralLinter
 from govagent.agent.nodes import AgentDeps
 from govagent.agent.state import Budget
 from govagent.config import Settings
 from govagent.core.rules_meta import parse_rules_meta
-from govagent.domain.ports import Linter
+from govagent.domain.errors import ConfigError
+from govagent.domain.ports import GitHost, Linter
 
 
 def linter(settings: Settings) -> Linter:
@@ -28,3 +30,9 @@ def budget(settings: Settings) -> Budget:
         max_llm_calls_per_run=settings.max_llm_calls_per_run,
         max_cost_usd_per_run=settings.max_cost_usd_per_run,
     )
+
+
+def git_host(settings: Settings) -> GitHost:
+    if settings.github_token is None or not settings.github_token.get_secret_value():
+        raise ConfigError("GOVAGENT_GITHUB_TOKEN must be set to read from or open PRs on GitHub")
+    return GitHubClient(settings.github_token.get_secret_value())

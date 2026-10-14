@@ -75,59 +75,16 @@ def fix(
 
     Without --interactive or --yes-non-breaking, fixes are only shown.
     """
-    if interactive and yes_non_breaking:
-        raise typer.BadParameter("use either --interactive or --yes-non-breaking")
-    from govagent.agent.runner import analyze
-    from govagent.core.approval import (
-        apply_approvable,
-        apply_approved,
-        auto_approvable_ids,
-        proposal_diffs,
-        resolved_proposals,
-    )
-
     original = spec.read_text()
     settings = Settings()
-    with _errors_as_exit():
-        result = analyze(original, wiring.agent_deps(settings), wiring.budget(settings))
-    _print_report(result)
-    if report is not None:
-        report.write_text(result.model_dump_json(indent=2, by_alias=True) + "\n")
-        typer.echo(f"report written to {report}")
+    result = _analyze(original, settings, interactive, yes_non_breaking, report)
+    approved = _approve(original, result, settings, interactive, yes_non_breaking)
+    if approved is None:
+        return
+    from govagent.core.approval import apply_approved
 
-    proposals = resolved_proposals(result)
-    if not proposals:
-        typer.echo("no verified fix to apply")
-        return
-    diffs = proposal_diffs(original, result)
-    outcomes = {o.proposal.id: o for o in result.outcomes if o.proposal is not None}
-    approved: list[str] = []
-    if interactive:
-        for proposal in proposals:
-            _print_proposal(proposal, outcomes[proposal.id], diffs[proposal.id])
-            if typer.confirm("Apply this fix?", default=False):
-                approved.append(proposal.id)
-    elif yes_non_breaking:
-        approved = auto_approvable_ids(result)
-        for proposal in proposals:
-            if proposal.breaking:
-                typer.echo(f"skipped (breaking, needs explicit approval): {proposal.id}")
-    else:
-        for proposal in proposals:
-            _print_proposal(proposal, outcomes[proposal.id], diffs[proposal.id])
-        typer.echo("nothing applied: use --interactive or --yes-non-breaking to approve fixes")
-        return
-
-    if not approved:
-        typer.echo("no fix approved")
-        return
     with _errors_as_exit():
-        if yes_non_breaking:  # automatic approval: best effort, explained
-            applied, dropped = apply_approvable(original, result, approved, wiring.linter(settings))
-            for proposal_id in dropped:
-                typer.echo(f"skipped (depends on a fix that was not approved): {proposal_id}")
-        else:  # the user chose this exact set: all or nothing
-            applied = apply_approved(original, result, approved, wiring.linter(settings))
+        applied = apply_approved(original, result, approved, wiring.linter(settings))
     target = out or spec
     if dry_run:
         typer.echo(f"dry run: would apply {len(applied.applied)} fix(es) to {target}")
@@ -135,6 +92,117 @@ def fix(
     target.write_text(applied.spec_text)
     remaining = len(applied.remaining)
     typer.echo(f"applied {len(applied.applied)} fix(es) to {target}; {remaining} violation(s) left")
+
+
+@app.command()
+def pr(
+    repo: Annotated[str, typer.Option(help="GitHub repository, OWNER/NAME (allowlisted).")],
+    path: Annotated[str, typer.Option(help="Path of the spec in the repository.")],
+    base: Annotated[str, typer.Option(help="Branch to read the spec from and target.")] = "main",
+    report: Annotated[
+        Path | None, typer.Option(help="Write the analysis report (JSON) to this file.")
+    ] = None,
+    interactive: Annotated[
+        bool, typer.Option("--interactive", help="Review each fix (diff) and approve it.")
+    ] = False,
+    yes_non_breaking: Annotated[
+        bool, typer.Option("--yes-non-breaking", help="Approve every non-breaking fix.")
+    ] = False,
+) -> None:
+    """Analyze a spec on GitHub and open a pull request with the approved fixes."""
+    from govagent.core.pull_request import check_repo_allowed, open_fix_pull_request
+
+    settings = Settings()
+    with _errors_as_exit():
+        check_repo_allowed(repo, settings.repo_allowlist)
+        host = wiring.git_host(settings)
+        original, _ = host.get_file(repo, path, base)
+    result = _analyze(original, settings, interactive, yes_non_breaking, report)
+    approved = _approve(original, result, settings, interactive, yes_non_breaking)
+    if approved is None:
+        return
+    with _errors_as_exit():
+        pull_request = open_fix_pull_request(
+            host,
+            repo=repo,
+            path=path,
+            base=base,
+            original_text=original,
+            report=result,
+            approved_ids=approved,
+            linter=wiring.linter(settings),
+            allowlist=settings.repo_allowlist,
+        )
+    typer.echo(f"pull request opened: {pull_request.url} ({len(pull_request.applied)} fix(es))")
+
+
+def _analyze(
+    original: str,
+    settings: Settings,
+    interactive: bool,
+    yes_non_breaking: bool,
+    report: Path | None,
+) -> AnalysisReport:
+    if interactive and yes_non_breaking:
+        raise typer.BadParameter("use either --interactive or --yes-non-breaking")
+    from govagent.agent.runner import analyze
+
+    with _errors_as_exit():
+        result = analyze(original, wiring.agent_deps(settings), wiring.budget(settings))
+    _print_report(result)
+    if report is not None:
+        report.write_text(result.model_dump_json(indent=2, by_alias=True) + "\n")
+        typer.echo(f"report written to {report}")
+    return result
+
+
+def _approve(
+    original: str,
+    result: AnalysisReport,
+    settings: Settings,
+    interactive: bool,
+    yes_non_breaking: bool,
+) -> list[str] | None:
+    """The approved proposal ids, or None when there is nothing to apply."""
+    from govagent.core.approval import (
+        apply_approvable,
+        auto_approvable_ids,
+        proposal_diffs,
+        resolved_proposals,
+    )
+
+    proposals = resolved_proposals(result)
+    if not proposals:
+        typer.echo("no verified fix to apply")
+        return None
+    diffs = proposal_diffs(original, result)
+    outcomes = {o.proposal.id: o for o in result.outcomes if o.proposal is not None}
+    if interactive:
+        approved: list[str] = []
+        for proposal in proposals:
+            _print_proposal(proposal, outcomes[proposal.id], diffs[proposal.id])
+            if typer.confirm("Apply this fix?", default=False):
+                approved.append(proposal.id)
+    elif yes_non_breaking:
+        for proposal in proposals:
+            if proposal.breaking:
+                typer.echo(f"skipped (breaking, needs explicit approval): {proposal.id}")
+        with _errors_as_exit():  # automatic approval: best effort, explained
+            _, dropped = apply_approvable(
+                original, result, auto_approvable_ids(result), wiring.linter(settings)
+            )
+        for proposal_id in dropped:
+            typer.echo(f"skipped (depends on a fix that was not approved): {proposal_id}")
+        approved = [i for i in auto_approvable_ids(result) if i not in dropped]
+    else:
+        for proposal in proposals:
+            _print_proposal(proposal, outcomes[proposal.id], diffs[proposal.id])
+        typer.echo("nothing applied: use --interactive or --yes-non-breaking to approve fixes")
+        return None
+    if not approved:
+        typer.echo("no fix approved")
+        return None
+    return approved
 
 
 @app.command()

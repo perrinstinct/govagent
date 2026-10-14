@@ -10,10 +10,10 @@ from govagent.agent.nodes import AgentDeps
 from govagent.agent.state import Budget
 from govagent.config import Settings
 from govagent.core.rules_meta import parse_rules_meta
-from govagent.domain.ports import Linter
+from govagent.domain.ports import GitHost, Linter
 from govagent.interfaces import wiring
 from govagent.interfaces.cli import app
-from tests.unit.agent_fakes import FakeLinter, ScriptedModel, fix
+from tests.unit.agent_fakes import FakeGitHost, FakeLinter, ScriptedModel, fix
 
 runner = CliRunner()
 RULES_META = parse_rules_meta(
@@ -157,3 +157,39 @@ def test_fix_refuses_to_run_without_model_config(
 
     assert result.exit_code == 1
     assert "GOVAGENT_MODEL_ID" in result.stderr
+
+
+REPO = "octo/demo"
+
+
+@pytest.fixture
+def github(spec: Path, monkeypatch: pytest.MonkeyPatch) -> FakeGitHost:
+    host = FakeGitHost({(REPO, "openapi.yaml"): SPEC})
+
+    def git_host(settings: Settings) -> GitHost:
+        return host
+
+    monkeypatch.setattr(wiring, "git_host", git_host)
+    monkeypatch.setenv("GOVAGENT_REPO_ALLOWLIST", REPO)
+    return host
+
+
+def test_pr_opens_a_pull_request_with_non_breaking_fixes(github: FakeGitHost) -> None:
+    args = ["pr", "--repo", REPO, "--path", "openapi.yaml", "--yes-non-breaking"]
+
+    result = runner.invoke(app, args)
+
+    assert result.exit_code == 0, result.output
+    assert "pull request opened: https://github.com/octo/demo/pull/1 (1 fix(es))" in result.stdout
+    [committed] = github.commits.values()
+    assert "      summary: Create a pet\n" in committed
+
+
+def test_pr_refuses_a_repository_outside_the_allowlist(github: FakeGitHost) -> None:
+    args = ["pr", "--repo", "octo/other", "--path", "openapi.yaml", "--yes-non-breaking"]
+
+    result = runner.invoke(app, args)
+
+    assert result.exit_code == 1
+    assert "not in GOVAGENT_REPO_ALLOWLIST" in result.stderr
+    assert github.calls == []

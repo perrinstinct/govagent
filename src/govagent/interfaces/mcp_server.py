@@ -1,9 +1,9 @@
 """MCP server (docs/SPEC.md §8): streamable HTTP on /mcp, stateless, behind a Bearer token.
 
-Tools: `lint_spec`, `propose_fixes` (runs the agent, stores the analysis) and `apply_fixes`
-(applies the fixes the user approved). PR creation (`open_pull_request`) arrives with the
-GitHub adapter in M6. The core is synchronous: tools run it in a worker thread so the event
-loop stays free.
+Tools: `lint_spec`, `propose_fixes` (runs the agent, stores the analysis), `apply_fixes`
+(returns the spec with the approved fixes) and `open_pull_request` (opens a PR with them on an
+allowlisted GitHub repository). Specs are passed as text or read from GitHub. The core is
+synchronous: tools run it in a worker thread so the event loop stays free.
 """
 
 import hmac
@@ -25,18 +25,20 @@ from starlette.types import ASGIApp, Receive, Scope, Send
 from govagent.agent.nodes import AgentDeps
 from govagent.config import Settings
 from govagent.core.approval import apply_approved, proposal_diffs
+from govagent.core.pull_request import check_repo_allowed, open_fix_pull_request
 from govagent.core.spec_io import load_spec
 from govagent.domain.errors import ConfigError, GovagentError
 from govagent.domain.models import AnalysisReport, FixStatus, Violation
-from govagent.domain.ports import Linter
+from govagent.domain.ports import GitHost, Linter
 from govagent.interfaces import wiring
 from govagent.interfaces.analysis_store import AnalysisStore
 
 INSTRUCTIONS = """\
 govagent checks OpenAPI 3.0/3.1 specs against API governance rules and proposes verified
 JSON Patch fixes. Typical flow: lint_spec -> propose_fixes -> show the user each diff ->
-apply_fixes with the ids the user approved. Fixes marked breaking change the API contract:
-only apply them when the user explicitly approves them.
+apply_fixes (returns the fixed spec) or open_pull_request (GitHub) with the ids the user
+approved. Fixes marked breaking change the API contract: only include them when the user
+explicitly approves them. Never approve fixes on the user's behalf.
 """
 
 
@@ -45,16 +47,19 @@ def build_app(
     *,
     linter: Linter | None = None,
     agent_deps: AgentDeps | None = None,
+    git_host: GitHost | None = None,
     clock: Callable[[], float] = time.monotonic,
 ) -> Starlette:
-    """The ASGI app. `linter` / `agent_deps` default to the real adapters (tests inject fakes)."""
+    """The ASGI app. Real adapters are built lazily unless injected (tests pass fakes)."""
     if settings.mcp_api_key is None or not settings.mcp_api_key.get_secret_value():
         raise ConfigError("GOVAGENT_MCP_API_KEY must be set to run the MCP server")
-    tools = _Tools(settings, linter, agent_deps, AnalysisStore(settings.analysis_ttl_seconds))
+    store = AnalysisStore(settings.analysis_ttl_seconds)
+    tools = _Tools(settings, linter, agent_deps, git_host, store)
     server = MCPServer(name="govagent", instructions=INSTRUCTIONS)
     server.tool()(tools.lint_spec)
     server.tool()(tools.propose_fixes)
     server.tool()(tools.apply_fixes)
+    server.tool()(tools.open_pull_request)
 
     @server.custom_route("/healthz", methods=["GET"])
     async def healthz(request: Request) -> Response:  # pyright: ignore[reportUnusedFunction]
@@ -83,26 +88,44 @@ class _Tools:
         settings: Settings,
         linter: Linter | None,
         agent_deps: AgentDeps | None,
+        git_host: GitHost | None,
         store: AnalysisStore,
     ) -> None:
         self._settings = settings
         self._linter = linter
         self._agent_deps = agent_deps
+        self._git_host = git_host
         self._store = store
 
-    async def lint_spec(self, spec_content: str) -> dict[str, Any]:
-        """Lint an OpenAPI 3.0/3.1 spec (YAML or JSON text) against the governance rules."""
+    async def lint_spec(
+        self,
+        spec_content: str | None = None,
+        repo: str | None = None,
+        path: str | None = None,
+        ref: str = "main",
+    ) -> dict[str, Any]:
+        """Lint an OpenAPI 3.0/3.1 spec against the governance rules. Pass either the spec text
+        (spec_content, YAML or JSON) or its location on an allowlisted GitHub repository
+        (repo as OWNER/NAME, path, ref)."""
         with _anticipated():
-            violations = await anyio.to_thread.run_sync(self._lint, spec_content)
+            text = await anyio.to_thread.run_sync(self._read_spec, spec_content, repo, path, ref)
+            violations = await anyio.to_thread.run_sync(self._lint, text)
         return {"count": len(violations), "violations": [_violation(v) for v in violations]}
 
-    async def propose_fixes(self, spec_content: str) -> dict[str, Any]:
-        """Propose verified fixes for every violation. Nothing is applied: show the user each
-        proposal's diff and breaking flag, then call apply_fixes with the approved ids. The
-        analysis expires after an hour."""
+    async def propose_fixes(
+        self,
+        spec_content: str | None = None,
+        repo: str | None = None,
+        path: str | None = None,
+        ref: str = "main",
+    ) -> dict[str, Any]:
+        """Propose verified fixes for every violation (same inputs as lint_spec). Nothing is
+        applied: show the user each proposal's diff and breaking flag, then call apply_fixes or
+        open_pull_request with the approved ids. The analysis expires after an hour."""
         with _anticipated():
-            report, diffs = await anyio.to_thread.run_sync(self._propose, spec_content)
-        stored = self._store.put(spec_content, report)
+            text = await anyio.to_thread.run_sync(self._read_spec, spec_content, repo, path, ref)
+            report, diffs = await anyio.to_thread.run_sync(self._propose, text)
+        stored = self._store.put(text, report)
         proposals = [
             {
                 "id": outcome.proposal.id,
@@ -150,6 +173,49 @@ class _Tools:
             "spec_content": applied.spec_text,
         }
 
+    async def open_pull_request(
+        self,
+        analysis_id: str,
+        approved_fix_ids: list[str],
+        repo: str,
+        path: str,
+        base: str = "main",
+    ) -> dict[str, Any]:
+        """Open a pull request on an allowlisted GitHub repository with the fixes the user
+        approved (ids from propose_fixes). Refused if the file on `base` is not the analyzed
+        spec, or if an approved fix depends on one that was not approved."""
+        with _anticipated():
+            stored = self._store.get(analysis_id)
+            pull_request = await anyio.to_thread.run_sync(
+                lambda: open_fix_pull_request(
+                    self._get_git_host(),
+                    repo=repo,
+                    path=path,
+                    base=base,
+                    original_text=stored.spec_text,
+                    report=stored.report,
+                    approved_ids=approved_fix_ids,
+                    linter=self._get_linter(),
+                    allowlist=self._settings.repo_allowlist,
+                )
+            )
+        return {
+            "pr_url": pull_request.url,
+            "branch": pull_request.branch,
+            "applied": pull_request.applied,
+            "remaining_violations": [_violation(v) for v in pull_request.remaining],
+        }
+
+    def _read_spec(
+        self, spec_content: str | None, repo: str | None, path: str | None, ref: str
+    ) -> str:
+        if spec_content is not None and repo is None and path is None:
+            return spec_content
+        if spec_content is None and repo is not None and path is not None:
+            check_repo_allowed(repo, self._settings.repo_allowlist)
+            return self._get_git_host().get_file(repo, path, ref)[0]
+        raise UsageError("pass either spec_content, or repo and path (and optionally ref)")
+
     def _lint(self, spec_content: str) -> list[Violation]:
         load_spec(spec_content)  # clear error for invalid / multi-file specs
         return self._get_linter().lint(spec_content)
@@ -165,10 +231,19 @@ class _Tools:
             self._linter = wiring.linter(self._settings)
         return self._linter
 
+    def _get_git_host(self) -> GitHost:
+        if self._git_host is None:  # built lazily: specs passed as text need no token
+            self._git_host = wiring.git_host(self._settings)
+        return self._git_host
+
     def _get_agent_deps(self) -> AgentDeps:
         if self._agent_deps is None:  # built lazily: linting works without a model configured
             self._agent_deps = wiring.agent_deps(self._settings)
         return self._agent_deps
+
+
+class UsageError(GovagentError):
+    """A tool was called with an invalid combination of arguments."""
 
 
 @contextmanager

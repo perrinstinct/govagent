@@ -13,7 +13,7 @@ from govagent.config import Settings
 from govagent.core.rules_meta import parse_rules_meta
 from govagent.domain.errors import ConfigError
 from govagent.interfaces.mcp_server import build_app
-from tests.unit.agent_fakes import FakeLinter, ScriptedModel, fix
+from tests.unit.agent_fakes import FakeGitHost, FakeLinter, ScriptedModel, fix
 
 RULES_META = parse_rules_meta(
     (Path(__file__).resolve().parents[2] / "rulesets" / "rules_meta.yaml").read_text()
@@ -50,10 +50,20 @@ def settings(**overrides: Any) -> Settings:
     return Settings(_env_file=None, **values)  # pyright: ignore[reportCallIssue]
 
 
+REPO = "octo/demo"
+
+
 @pytest.fixture
-def client(clean_env: pytest.MonkeyPatch) -> Iterator[TestClient]:
+def github() -> FakeGitHost:
+    return FakeGitHost({(REPO, "openapi.yaml"): SPEC})
+
+
+@pytest.fixture
+def client(clean_env: pytest.MonkeyPatch, github: FakeGitHost) -> Iterator[TestClient]:
     deps = AgentDeps(FakeLinter(), ScriptedModel(ADD_SUMMARY), RULES_META)
-    app = build_app(settings(), linter=FakeLinter(), agent_deps=deps)
+    app = build_app(
+        settings(repo_allowlist=[REPO]), linter=FakeLinter(), agent_deps=deps, git_host=github
+    )
     with TestClient(app, base_url="http://localhost") as test_client:
         yield test_client
 
@@ -94,7 +104,12 @@ def test_mcp_endpoint_rejects_missing_or_wrong_token(client: TestClient, token: 
 def test_tools_are_listed(client: TestClient) -> None:
     tools = rpc(client, "tools/list", {}).json()["result"]["tools"]
 
-    assert {tool["name"] for tool in tools} == {"lint_spec", "propose_fixes", "apply_fixes"}
+    assert {tool["name"] for tool in tools} == {
+        "lint_spec",
+        "propose_fixes",
+        "apply_fixes",
+        "open_pull_request",
+    }
 
 
 def test_lint_spec(client: TestClient) -> None:
@@ -168,3 +183,44 @@ def test_unknown_host_header_is_refused(client: TestClient) -> None:
 def test_server_refuses_to_start_without_an_api_key(clean_env: pytest.MonkeyPatch) -> None:
     with pytest.raises(ConfigError, match="GOVAGENT_MCP_API_KEY"):
         build_app(Settings(_env_file=None))  # pyright: ignore[reportCallIssue]
+
+
+def test_lint_a_spec_read_from_github(client: TestClient, github: FakeGitHost) -> None:
+    result = call_tool(client, "lint_spec", repo=REPO, path="openapi.yaml")
+
+    assert result["structuredContent"]["count"] == 1
+    assert github.calls == [("get_file", REPO, "openapi.yaml", "main")]
+
+
+def test_repository_outside_the_allowlist_is_refused(client: TestClient) -> None:
+    result = call_tool(client, "lint_spec", repo="octo/other", path="openapi.yaml")
+
+    assert result["isError"] is True
+    assert "GOVAGENT_REPO_ALLOWLIST" in result["content"][0]["text"]
+
+
+def test_spec_source_must_be_text_or_repository(client: TestClient) -> None:
+    result = call_tool(client, "lint_spec", spec_content=SPEC, repo=REPO, path="openapi.yaml")
+
+    assert result["isError"] is True
+    assert "either spec_content, or repo and path" in result["content"][0]["text"]
+
+
+def test_propose_from_github_then_open_a_pull_request(
+    client: TestClient, github: FakeGitHost
+) -> None:
+    proposed = call_tool(client, "propose_fixes", repo=REPO, path="openapi.yaml")
+    proposal = proposed["structuredContent"]["proposals"][0]
+
+    result = call_tool(
+        client,
+        "open_pull_request",
+        analysis_id=proposed["structuredContent"]["analysis_id"],
+        approved_fix_ids=[proposal["id"]],
+        repo=REPO,
+        path="openapi.yaml",
+    )["structuredContent"]
+
+    assert result["pr_url"] == "https://github.com/octo/demo/pull/1"
+    assert result["applied"] == [proposal["id"]]
+    assert "      summary: Create a pet\n" in github.commits[result["branch"]]

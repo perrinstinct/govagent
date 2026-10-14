@@ -57,3 +57,15 @@ class ApprovalError(GovagentError):
     def __init__(self, message: str, proposal_id: str | None = None) -> None:
         super().__init__(message)
         self.proposal_id = proposal_id  # the proposal that no longer applies, when known
+
+
+class GitHubError(GovagentError):
+    """A GitHub API call failed (auth, permissions, missing file, branch already exists...)."""
+
+
+class RepoNotAllowedError(GovagentError):
+    """The repository is not in GOVAGENT_REPO_ALLOWLIST."""
+
+
+class StaleSpecError(GovagentError):
+    """The spec on the repository changed since it was analyzed."""

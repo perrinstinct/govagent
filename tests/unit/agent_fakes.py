@@ -95,3 +95,32 @@ def human() -> LLMFixOutput:
 
 def schema_error() -> ModelOutputError:
     return ModelOutputError("tool call missing 'ops'", Usage())
+
+
+class FakeGitHost:
+    """In-memory GitHost: one file per (repo, path) on `main`, records every call."""
+
+    def __init__(self, files: dict[tuple[str, str], str]) -> None:
+        self.files = dict(files)
+        self.calls: list[tuple[str, ...]] = []
+        self.commits: dict[str, str] = {}  # branch -> committed text
+        self.pull_requests: list[dict[str, str]] = []
+
+    def get_file(self, repo: str, path: str, ref: str) -> tuple[str, str]:
+        self.calls.append(("get_file", repo, path, ref))
+        text = self.files[(repo, path)]
+        return text, f"sha-{len(text)}"
+
+    def create_branch(self, repo: str, branch: str, from_ref: str) -> None:
+        self.calls.append(("create_branch", repo, branch, from_ref))
+
+    def update_file(
+        self, repo: str, path: str, branch: str, text: str, sha: str, message: str
+    ) -> None:
+        self.calls.append(("update_file", repo, path, branch, sha, message))
+        self.commits[branch] = text
+
+    def open_pr(self, repo: str, head: str, base: str, title: str, body: str) -> str:
+        self.calls.append(("open_pr", repo, head, base, title))
+        self.pull_requests.append({"title": title, "body": body, "head": head, "base": base})
+        return f"https://github.com/{repo}/pull/{len(self.pull_requests)}"

@@ -215,7 +215,8 @@ CLI complete (§8, `govagent pr` arrives with M6), MCP server with auth + analys
 §7 complete, allowlist, PR body template.
 ✅ A real PR opened on a public demo repo (`govagent-demo` with a deliberately messy spec).
 
-**M7 — AWS deployment** (Terraform, `infra/terraform/`)
+**M7 — AWS deployment** (Terraform, `infra/terraform/`) — **optional**, on the roadmap
+Not required for the MVP: the project showcases the agent (LangGraph, evals, verification), which runs locally and in the Docker image. If done, prefer two Terraform stacks: `base` always on (~$1.30/month: state, ECR, secrets, IAM, OIDC role, certificate, budget alarm) and `service` (ALB + ECS + DNS) applied for demos and destroyed after (~$0.07/hour in eu-west-3; ~$54/month if left on).
 - S3 backend with native lockfile.
 - ECR; ECS cluster + Fargate service (1 task, 0.5 vCPU / 1 GB); ALB + HTTPS (ACM cert, subdomain on the personal domain, DNS at Cloudflare).
 - Secrets Manager: GitHub token, MCP API key. Task role: `bedrock:InvokeModel` on the specific model/inference-profile ARNs only + `secretsmanager:GetSecretValue` on those two secrets.
@@ -229,15 +230,15 @@ CLI complete (§8, `govagent pr` arrives with M6), MCP server with auth + analys
 **M8 — Observability & packaging**
 structlog JSON with `run_id`; optional Langfuse callback via env. Eval workflow on `workflow_dispatch` + push to main (smoke subset, OIDC → Bedrock).
 README (English): problem → demo GIF (Claude Desktop fixes a spec and opens a PR) → architecture diagram → eval results table → design decisions (link ADRs) → limitations → roadmap → quickstart.
-ADRs: 001 deterministic detection / LLM fixes only · 002 JSON Patch over full rewrite · 003 approval outside the graph · 004 deterministic breaking classification · 005 ECS Fargate over Lambda.
+ADRs: 001 deterministic detection / LLM fixes only · 002 JSON Patch over full rewrite · 003 approval outside the graph · 004 deterministic breaking classification · 005 deployment kept optional (container image now; ECS Fargate over Lambda if deployed).
 ✅ Definition of done (§10).
 
 ## 10. Definition of done (MVP)
-- [ ] Deployed on AWS, reachable over MCP from Claude Desktop, authenticated
+- [ ] MCP server usable from an MCP client (Claude Code / Desktop), authenticated; AWS deployment optional (M7)
 - [ ] One real PR opened on the public demo repo
 - [ ] Reproducible evals with published numbers (Claude Haiku 4.5); smoke subset in CI
 - [ ] README with demo GIF + eval table + ADRs
-- [ ] Cost per analysis known and capped by config; AWS budget alarm active
+- [ ] Cost per analysis known and capped by config; AWS budget alarm active (for the Bedrock account)
 
 ## 11. Configuration (`GOVAGENT_` prefix)
 `MODEL_ID`, `AWS_REGION`, `RULESET_PATH`, `RULES_META_PATH`, `SPECTRAL_BIN`, `MAX_ATTEMPTS_PER_GROUP`, `MAX_LLM_CALLS_PER_RUN`, `MAX_COST_USD_PER_RUN`, `PRICE_INPUT_PER_MTOK`, `PRICE_OUTPUT_PER_MTOK`, `GITHUB_TOKEN`, `REPO_ALLOWLIST`, `MCP_API_KEY`, `ANALYSIS_TTL_SECONDS`, `LOG_LEVEL`, optional `LANGFUSE_PUBLIC_KEY` / `LANGFUSE_SECRET_KEY` / `LANGFUSE_HOST`.

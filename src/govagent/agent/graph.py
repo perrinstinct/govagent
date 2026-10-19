@@ -11,12 +11,14 @@ lint -> group -> next_group --(queue empty)--------------------------> finalize 
                                                   '--give up--> record
 """
 
-from typing import Any
+import sys
+from typing import Any, cast
 
 from langgraph.graph import END, START, StateGraph
 
 from govagent.agent.nodes import AgentDeps, Nodes, route_after_attempt_step
 from govagent.agent.state import AgentState
+from govagent.domain.ports import FixModel, Linter
 
 
 def build_graph(deps: AgentDeps) -> Any:
@@ -53,3 +55,13 @@ def build_graph(deps: AgentDeps) -> Any:
     graph.add_edge("record", "next_group")
     graph.add_edge("finalize", END)
     return graph.compile()
+
+
+def draw_mermaid() -> str:
+    """Mermaid diagram of the compiled graph. Drawing calls no dependency, hence the stubs."""
+    deps = AgentDeps(linter=cast(Linter, None), fix_model=cast(FixModel, None), rules_meta={})
+    return build_graph(deps).get_graph().draw_mermaid()
+
+
+if __name__ == "__main__":  # uv run python -m govagent.agent.graph > graph.mmd
+    sys.stdout.write(draw_mermaid())

@@ -1,0 +1,65 @@
+name: Eval
+
+# Manual only: every run calls Amazon Bedrock and costs money (~$0.04 for the smoke subset).
+on:
+  workflow_dispatch:
+    inputs:
+      subset:
+        description: smoke (12 cases) or full (84 cases)
+        type: choice
+        options: [smoke, full]
+        default: smoke
+      max_total_cost:
+        description: Stop the run once this many USD have been spent
+        default: "0.10"
+
+permissions:
+  id-token: write # OIDC: short-lived AWS credentials, no stored keys
+  contents: read
+
+concurrency:
+  group: eval
+  cancel-in-progress: false
+
+env:
+  SPECTRAL_VERSION: 6.16.3
+  # Claude Haiku 4.5 through the EU inference profile, priced from the AWS Pricing API.
+  GOVAGENT_MODEL_ID: eu.anthropic.claude-haiku-4-5-20251001-v1:0
+  GOVAGENT_AWS_REGION: eu-west-3
+  GOVAGENT_PRICE_INPUT_PER_MTOK: "1.10"
+  GOVAGENT_PRICE_OUTPUT_PER_MTOK: "5.50"
+  GOVAGENT_MODEL_TEMPERATURE: "0"
+
+jobs:
+  eval:
+    name: Eval (${{ inputs.subset }})
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' # the AWS role only trusts main
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          enable-cache: true
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: npm install -g "@stoplight/spectral-cli@${SPECTRAL_VERSION}"
+      - run: uv sync --locked
+      - uses: aws-actions/configure-aws-credentials@v6.3.0
+        with:
+          role-to-assume: ${{ vars.AWS_EVAL_ROLE_ARN }}
+          aws-region: eu-west-3
+      - name: Run the eval
+        run: >-
+          uv run python -m evals.run
+          --subset "${{ inputs.subset }}"
+          --max-total-cost "${{ inputs.max_total_cost }}"
+          --label ci
+      - name: Summary
+        if: always()
+        run: cat evals/results/*_ci_*.md >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: eval-results
+          path: evals/results/*_ci_*

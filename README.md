@@ -172,6 +172,9 @@ uv run pytest -m integration   # needs Spectral on PATH
 uv run python -m evals.run --subset smoke   # real Bedrock calls, capped by --max-total-cost
 ```
 
+The same eval runs in GitHub Actions on demand (`Eval` workflow, manual trigger), with
+short-lived AWS credentials from OIDC and a role that can only invoke Claude Haiku 4.5.
+
 Specification: [docs/SPEC.md](docs/SPEC.md).
 
 ## License

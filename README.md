@@ -113,6 +113,7 @@ Budgets (attempts per group, model calls and dollars per run) are enforced in co
 - [ADR 002](docs/adr/002-json-patch-over-full-rewrite.md): JSON Patch over full rewrite
 - [ADR 003](docs/adr/003-approval-outside-the-graph.md): human approval lives outside the agent graph
 - [ADR 004](docs/adr/004-deterministic-breaking-classification.md): breaking-ness and fix class are deterministic
+- [ADR 005](docs/adr/005-deployment-kept-optional.md): deployment is optional; ECS Fargate if deployed
 
 ## Quickstart
 

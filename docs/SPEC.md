@@ -234,11 +234,11 @@ ADRs: 001 deterministic detection / LLM fixes only · 002 JSON Patch over full r
 ✅ Definition of done (§10).
 
 ## 10. Definition of done (MVP)
-- [ ] MCP server usable from an MCP client (Claude Code / Desktop), authenticated; AWS deployment optional (M7)
-- [ ] One real PR opened on the public demo repo
+- [x] MCP server usable from an MCP client (Claude Code / Desktop), authenticated; AWS deployment optional (M7)
+- [x] One real PR opened on the public demo repo ([govagent-demo#1](https://github.com/perrinstinct/govagent-demo/pull/1))
 - [ ] Reproducible evals with published numbers (Claude Haiku 4.5); smoke subset in CI
-- [ ] README with demo GIF + eval table + ADRs
-- [ ] Cost per analysis known and capped by config; AWS budget alarm active (for the Bedrock account)
+- [x] README with demo GIF + eval table + ADRs
+- [x] Cost per analysis known and capped by config; AWS budget alarm active (for the Bedrock account)
 
 ## 11. Configuration (`GOVAGENT_` prefix)
 `MODEL_ID`, `AWS_REGION`, `RULESET_PATH`, `RULES_META_PATH`, `SPECTRAL_BIN`, `MAX_ATTEMPTS_PER_GROUP`, `MAX_LLM_CALLS_PER_RUN`, `MAX_COST_USD_PER_RUN`, `PRICE_INPUT_PER_MTOK`, `PRICE_OUTPUT_PER_MTOK`, `GITHUB_TOKEN`, `REPO_ALLOWLIST`, `MCP_API_KEY`, `ANALYSIS_TTL_SECONDS`, `LOG_LEVEL`, optional `LANGFUSE_PUBLIC_KEY` / `LANGFUSE_SECRET_KEY` / `LANGFUSE_HOST`.

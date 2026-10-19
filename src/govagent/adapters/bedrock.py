@@ -5,6 +5,7 @@ langchain validates the answer into the Pydantic model. Every call is metered (t
 with the configured prices), including calls whose answer does not match the schema.
 """
 
+import time
 from typing import Any, cast
 
 from botocore.exceptions import (  # pyright: ignore[reportMissingTypeStubs]
@@ -17,6 +18,9 @@ from langchain_core.language_models import BaseChatModel
 from govagent.config import Settings
 from govagent.domain.errors import ConfigError, LLMError, ModelOutputError
 from govagent.domain.models import FixRequest, LLMFixOutput, Usage
+from govagent.observability import get_logger
+
+log = get_logger(__name__)
 
 
 class BedrockFixModel:
@@ -55,12 +59,23 @@ class BedrockFixModel:
 
     def propose(self, request: FixRequest) -> tuple[LLMFixOutput, Usage]:
         messages = [("system", request.system_prompt), ("human", request.user_prompt)]
+        started = time.monotonic()
         try:
             response = cast(dict[str, Any], self._structured.invoke(messages))  # pyright: ignore[reportUnknownMemberType]
         except (ClientError, BotoCoreError) as exc:
+            log.warning("model_call_failed", group_id=request.group_id, error=type(exc).__name__)
             raise LLMError(f"Bedrock call failed: {exc}") from exc
 
         usage = self._usage(response.get("raw"))
+        log.info(
+            "model_call",
+            group_id=request.group_id,
+            attempt=request.attempt,
+            latency_ms=round((time.monotonic() - started) * 1000),
+            input_tokens=usage.input_tokens,
+            output_tokens=usage.output_tokens,
+            cost_usd=round(usage.cost_usd, 6),
+        )
         parsed = response.get("parsed")
         if response.get("parsing_error") is not None or not isinstance(parsed, LLMFixOutput):
             error = response.get("parsing_error") or "no structured output returned"

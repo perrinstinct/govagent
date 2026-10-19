@@ -11,6 +11,7 @@ from govagent.config import Settings
 from govagent.domain.errors import GovagentError
 from govagent.domain.models import AnalysisReport, FixOutcome, FixProposal, Severity, Violation
 from govagent.interfaces import wiring
+from govagent.observability import configure_logging
 
 app = typer.Typer(name="govagent", no_args_is_help=True, add_completion=False)
 
@@ -20,6 +21,8 @@ SpecArgument = Annotated[Path, typer.Argument(exists=True, dir_okay=False, reada
 @app.callback()
 def main() -> None:
     """API governance agent for OpenAPI specs."""
+    # JSON logs go to stderr; WARNING by default so the human output stays readable.
+    configure_logging(Settings().log_level or "WARNING")
 
 
 @app.command()
@@ -215,9 +218,11 @@ def serve(
 
     from govagent.interfaces.mcp_server import build_app
 
+    settings = Settings()
+    configure_logging(settings.log_level or "INFO")
     with _errors_as_exit():
-        server_app = build_app(Settings())
-    uvicorn.run(server_app, host=host, port=port)
+        server_app = build_app(settings)
+    uvicorn.run(server_app, host=host, port=port, log_config=None)
 
 
 class _errors_as_exit:  # noqa: N801  (used as a lowercase context manager)

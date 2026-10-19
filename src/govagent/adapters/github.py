@@ -12,6 +12,9 @@ from urllib.parse import quote
 import httpx2
 
 from govagent.domain.errors import GitHubError
+from govagent.observability import get_logger
+
+log = get_logger(__name__)
 
 API_VERSION = "2022-11-28"
 
@@ -79,6 +82,7 @@ class GitHubClient:
             response = self._http.request(method, url, **kwargs)
         except httpx2.HTTPError as exc:
             raise GitHubError(f"GitHub request failed: {method} {url}: {exc}") from exc
+        log.info("github_request", method=method, path=url, status=response.status_code)
         if response.status_code >= 400:
             raise GitHubError(_describe_failure(method, url, response))
         return response.json()

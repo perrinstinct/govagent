@@ -31,6 +31,9 @@ from govagent.domain.models import (
     ViolationGroup,
 )
 from govagent.domain.ports import FixModel, Linter
+from govagent.observability import get_logger
+
+log = get_logger(__name__)
 
 Update = dict[str, Any]
 
@@ -75,6 +78,15 @@ class Nodes:
             status = FixStatus.NEEDS_HUMAN  # deterministic: no LLM call for this rule
         elif current is not None and state.budget_exhausted:
             status = FixStatus.BUDGET_EXCEEDED
+        if current is not None:
+            log.info(
+                "group_started",
+                group_id=current.id,
+                rule_id=current.rule_id,
+                scope=current.scope_pointer,
+                violations=len(current.violations),
+                settled_without_model=status.value if status else None,
+            )
         return {**_RESET, "current_group": current, "status": status}
 
     def route_next_group(self, state: AgentState) -> Literal["finalize", "record", "propose"]:
@@ -87,6 +99,12 @@ class Nodes:
     def propose(self, state: AgentState) -> Update:
         group = _current(state)
         if _budget_exhausted(state):
+            log.warning(
+                "budget_exhausted",
+                group_id=group.id,
+                llm_calls=state.usage.llm_calls,
+                cost_usd=round(state.usage.cost_usd, 6),
+            )
             return {"status": FixStatus.BUDGET_EXCEEDED, "budget_exhausted": True}
 
         attempt = state.attempt + 1
@@ -101,6 +119,7 @@ class Nodes:
         try:
             output, usage = self._model.propose(request)
         except ModelOutputError as exc:
+            log.info("attempt_failed", group_id=group.id, attempt=attempt, failure="schema")
             return {
                 **reset,
                 "usage": _add(state.usage, exc.usage),
@@ -109,6 +128,16 @@ class Nodes:
             }
 
         update: Update = {**reset, "usage": _add(state.usage, usage)}
+        log.info(
+            "proposal_received",
+            group_id=group.id,
+            attempt=attempt,
+            ops=len(output.ops),
+            needs_human_input=output.needs_human_input,
+            input_tokens=usage.input_tokens,
+            output_tokens=usage.output_tokens,
+            cost_usd=round(usage.cost_usd, 6),
+        )
         if output.needs_human_input:  # the model may downgrade a fix, never upgrade it
             return {**update, "status": FixStatus.NEEDS_HUMAN}
         proposal = FixProposal(
@@ -195,6 +224,13 @@ class Nodes:
                 "violations": violations,
                 "groups": group_violations(violations, self._meta),
             }
+        log.info(
+            "group_settled",
+            group_id=group.id,
+            rule_id=group.rule_id,
+            status=status.value,
+            attempts=state.attempt,
+        )
         return update
 
     def finalize(self, state: AgentState) -> Update:
@@ -232,6 +268,13 @@ def _failed(state: AgentState, failure: Failure, title: str, details: list[str])
     proposal = _candidate(state)
     feedback = "\n".join(
         [f"Previous operations: {render_ops(proposal.ops)}", title, *(f"- {d}" for d in details)]
+    )
+    log.info(
+        "attempt_failed",
+        group_id=proposal.group_id,
+        attempt=proposal.attempt,
+        failure=failure,
+        details=len(details),
     )
     return {"failure": failure, "last_feedback": feedback}
 

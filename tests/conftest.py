@@ -1,6 +1,8 @@
+from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
+import structlog
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 RULESETS_DIR = REPO_ROOT / "rulesets"
@@ -45,3 +47,10 @@ def _excluded(item: pytest.Item, mark_expression: str, explicit_targets: bool) -
     if item.get_closest_marker("integration"):
         return not (mark_expression or explicit_targets)
     return False
+
+
+@pytest.fixture(autouse=True)
+def _reset_logging() -> Iterator[None]:
+    """Each test starts with structlog's defaults (entry points reconfigure it)."""
+    yield
+    structlog.reset_defaults()

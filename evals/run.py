@@ -31,6 +31,7 @@ from govagent.domain.errors import (
 )
 from govagent.domain.models import FixRequest, LLMFixOutput, Usage, Violation
 from govagent.domain.ports import FixModel
+from govagent.observability import configure_logging
 
 RESULTS_DIR = Path(__file__).resolve().parent / "results"
 
@@ -243,6 +244,7 @@ def main(
         "price_output_per_mtok": price_output,
     }
     settings = Settings().model_copy(update={k: v for k, v in overrides.items() if v is not None})
+    configure_logging(settings.log_level or "WARNING")
     deps = AgentDeps(
         linter=SpectralLinter(settings.spectral_bin, settings.ruleset_path),
         fix_model=BedrockFixModel.from_settings(settings),

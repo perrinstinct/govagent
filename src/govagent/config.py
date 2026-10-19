@@ -55,7 +55,8 @@ class Settings(BaseSettings):
     )
 
     # Observability
-    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
+    # None: each entry point picks its default (CLI: WARNING, MCP server: INFO).
+    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] | None = None
     langfuse_public_key: str | None = None
     langfuse_secret_key: SecretStr | None = None
     langfuse_host: str | None = None

@@ -32,6 +32,9 @@ from govagent.domain.models import AnalysisReport, FixStatus, Violation
 from govagent.domain.ports import GitHost, Linter
 from govagent.interfaces import wiring
 from govagent.interfaces.analysis_store import AnalysisStore
+from govagent.observability import get_logger
+
+log = get_logger(__name__)
 
 INSTRUCTIONS = """\
 govagent checks OpenAPI 3.0/3.1 specs against API governance rules and proposes verified
@@ -107,6 +110,7 @@ class _Tools:
         """Lint an OpenAPI 3.0/3.1 spec against the governance rules. Pass either the spec text
         (spec_content, YAML or JSON) or its location on an allowlisted GitHub repository
         (repo as OWNER/NAME, path, ref)."""
+        log.info("tool_called", tool="lint_spec")
         with _anticipated():
             text = await anyio.to_thread.run_sync(self._read_spec, spec_content, repo, path, ref)
             violations = await anyio.to_thread.run_sync(self._lint, text)
@@ -122,6 +126,7 @@ class _Tools:
         """Propose verified fixes for every violation (same inputs as lint_spec). Nothing is
         applied: show the user each proposal's diff and breaking flag, then call apply_fixes or
         open_pull_request with the approved ids. The analysis expires after an hour."""
+        log.info("tool_called", tool="propose_fixes")
         with _anticipated():
             text = await anyio.to_thread.run_sync(self._read_spec, spec_content, repo, path, ref)
             report, diffs = await anyio.to_thread.run_sync(self._propose, text)
@@ -160,6 +165,7 @@ class _Tools:
     async def apply_fixes(self, analysis_id: str, approved_fix_ids: list[str]) -> dict[str, Any]:
         """Apply the fixes the user approved (ids from propose_fixes) to the original spec and
         return the fixed spec. Fails if an approved fix depends on one that was not approved."""
+        log.info("tool_called", tool="apply_fixes")
         with _anticipated():
             stored = self._store.get(analysis_id)
             applied = await anyio.to_thread.run_sync(
@@ -184,6 +190,7 @@ class _Tools:
         """Open a pull request on an allowlisted GitHub repository with the fixes the user
         approved (ids from propose_fixes). Refused if the file on `base` is not the analyzed
         spec, or if an approved fix depends on one that was not approved."""
+        log.info("tool_called", tool="open_pull_request")
         with _anticipated():
             stored = self._store.get(analysis_id)
             pull_request = await anyio.to_thread.run_sync(
@@ -284,6 +291,7 @@ class BearerAuthMiddleware:
         headers = dict(scope["headers"])
         presented = headers.get(b"authorization", b"")
         if not hmac.compare_digest(presented, self._expected):  # constant-time comparison
+            log.warning("request_rejected", reason="bad_token", path=scope["path"])
             response = JSONResponse(
                 {"error": "missing or invalid bearer token"},
                 status_code=401,
@@ -292,6 +300,7 @@ class BearerAuthMiddleware:
             await response(scope, receive, send)
             return
         if not self._allow(presented):
+            log.warning("request_rejected", reason="rate_limit", path=scope["path"])
             response = JSONResponse(
                 {"error": "rate limit exceeded"}, status_code=429, headers={"Retry-After": "60"}
             )

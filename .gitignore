@@ -29,3 +29,6 @@ htmlcov/
 .idea/
 .vscode/
 .DS_Store
+
+# LinkedIn video export of the demo (generated, not versioned)
+docs/demo/*.mp4

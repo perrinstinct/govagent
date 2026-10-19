@@ -32,3 +32,4 @@ htmlcov/
 
 # LinkedIn video export of the demo (generated, not versioned)
 docs/demo/*.mp4
+docs/demo/govagent-linkedin.png

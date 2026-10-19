@@ -14,7 +14,11 @@ hundreds of violations, then people fix them by hand, inconsistently. govagent c
 It runs as a CLI and as an MCP server, so Claude Code or Claude Desktop can drive it.
 Built with Python, LangGraph, LangChain (Amazon Bedrock, Claude Haiku 4.5) and the MCP SDK.
 
-<!-- Demo GIF (M8): a client proposes fixes and opens a pull request. -->
+![govagent linting a spec, proposing verified fixes and applying the ones a human approved](docs/demo/demo.gif)
+
+*Lint, then `fix --interactive`: each verified fix is shown as a diff, breaking ones are flagged,
+the human decides. The 15 s spent waiting for the model are shortened in the recording (and say
+so). Re-record with [`docs/demo/record.py`](docs/demo/record.py).*
 
 Example: [govagent-demo#1](https://github.com/perrinstinct/govagent-demo/pull/1), a pull request
 opened by govagent on a deliberately messy spec: four safe fixes applied (+6 −1 lines, comments

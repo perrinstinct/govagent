@@ -150,6 +150,8 @@ def _analyze(
         raise typer.BadParameter("use either --interactive or --yes-non-breaking")
     from govagent.agent.runner import analyze
 
+    typer.secho("Analyzing: lint, then propose and verify fixes with the model...", dim=True)
+
     with _errors_as_exit():
         result = analyze(original, wiring.agent_deps(settings), wiring.budget(settings))
     _print_report(result)

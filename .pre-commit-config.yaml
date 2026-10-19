@@ -10,6 +10,7 @@ repos:
       - id: check-yaml
       - id: check-toml
       - id: check-added-large-files
+        args: [--maxkb=1024] # the README demo GIF is ~750 KB
       - id: detect-private-key
 
   - repo: https://github.com/astral-sh/uv-pre-commit
